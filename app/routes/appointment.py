@@ -26,6 +26,6 @@ def book_appointment():
         db.session.add(appointment)
         db.session.commit()
         flash('Appointment booked successfully!')
-        return redirect(url_for('routes.index'))
+        return redirect(url_for('routes.queue'))
 
     return render_template('appointment.html', title='Book Appointment', form=form)
