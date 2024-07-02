@@ -46,6 +46,8 @@ class AppointmentForm(FlaskForm):
 
     def __init__(self, *args, **kwargs):
         super(AppointmentForm, self).__init__(*args, **kwargs)
+        self.doctor_id = None
+        self.doctor_name = None
         self.doctor.choices = [(doctor.id, doctor.username) for doctor in User.query.filter_by(role='doctor').all()]
 
 class PrescriptionForm(FlaskForm):

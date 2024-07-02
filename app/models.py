@@ -47,7 +47,8 @@ class Billing(db.Model):
     def __repr__(self):
         return f'<Billing {self.id} - Appointment {self.appointment_id} - {self.amount} - {self.status}>'
     """
-
+import random
+import string
 # app/models.py
 
 from datetime import datetime
@@ -76,8 +77,12 @@ class User(UserMixin, db.Model):
     def get_id(self):
         return str(self.id)
 
+def generate_random_id():
+    return ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
+
 class Appointment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    appointment_id = db.Column(db.String(64), unique=True, nullable=False, default=generate_random_id)
     patient_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     date = db.Column(db.Date, nullable=False)
     time = db.Column(db.Time, nullable=False)
@@ -89,18 +94,18 @@ class Appointment(db.Model):
     patient_blood_group = db.Column(db.String(8))
     patient_height = db.Column(db.Float)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    queue = db.relationship('Queue', backref='appointment', uselist=False)
     prescription = db.relationship('Prescription', backref='appointment', uselist=False)
-    status = db.Column(db.String(50), nullable=False)
 
     def __repr__(self):
         return f'<Appointment {self.patient_name} with {self.doctor_name}>'
 
 class Queue(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    appointment_id = db.Column(db.Integer, db.ForeignKey('appointment.id'))
+    appointment_id = db.Column(db.Integer, db.ForeignKey('appointment.id'), nullable=False)
     position = db.Column(db.Integer, nullable=False)
-    status = db.Column(db.String(64), nullable=False)
+    status = db.Column(db.String(64), nullable=False, default='waiting')
+    appointment = db.relationship('Appointment', backref=db.backref('queues', lazy=True))
+
 
 class Prescription(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -110,7 +115,7 @@ class Prescription(db.Model):
 
 class Billing(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    appointment_id = db.Column(db.Integer, db.ForeignKey('appointment.id'))
+    appointment_id = db.Column(db.Integer, db.ForeignKey('appointment.id'), nullable=False)
     amount = db.Column(db.Float, nullable=False)
-    status = db.Column(db.String(50), nullable=False, default='Unpaid')
+    status = db.Column(db.String(64), nullable=False, default='pending')
     appointment = db.relationship('Appointment', backref=db.backref('billings', lazy=True))

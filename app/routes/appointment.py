@@ -11,21 +11,22 @@ bp = Blueprint('appointment', __name__)
 @login_required
 def book_appointment():
     form = AppointmentForm()
-
-    # Get list of doctors to populate the doctor_name field choices
-    form.doctor.choices = [(doctor.username, doctor.username) for doctor in User.query.filter_by(role='doctor').all()]
-
     if form.validate_on_submit():
         appointment = Appointment(
-            patient_name=form.patient_name.data,
+            patient_id=form.patient_id.data,
+            date=form.date.data,
+            time=form.time.data,
+            doctor_id=form.doctor_id.data,
             doctor_name=form.doctor.data,
-            appointment_time=form.time.data,
             reason=form.reason.data,
-            user_id=form.patient_id.data
+            patient_name=form.patient_name.data,
+            patient_weight=form.patient_weight.data,
+            patient_blood_group=form.patient_blood_group.data,
+            patient_height=form.patient_height.data,
+            status='waiting'  # Default status
         )
         db.session.add(appointment)
         db.session.commit()
-        flash('Appointment booked successfully!')
-        return redirect(url_for('routes.queue'))
-
-    return render_template('appointment.html', title='Book Appointment', form=form)
+        flash('Appointment booked successfully!', 'success')
+        return redirect(url_for('index'))
+    return render_template('appointment.html', form=form)

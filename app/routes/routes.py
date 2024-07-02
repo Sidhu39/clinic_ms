@@ -105,9 +105,24 @@ def book_appointment():
 def view_queue():
     if current_user.role != 'doctor':
         return redirect(url_for('routes.index'))
-    waiting_queue = Queue.query.join(Appointment).filter(Queue.status == 'waiting').order_by(Queue.position).all()
-    billing_queue = Billing.query.join(Appointment).filter(Billing.status == 'unpaid').order_by(Billing.id).all()
+    waiting_queue = db.session.query(Queue).join(Appointment).filter(Queue.status == 'waiting').order_by(
+        Queue.position).all()
+    billing_queue = db.session.query(Queue).join(Appointment).filter(Queue.status == 'billing').order_by(
+        Queue.position).all()
+
     return render_template('view_queue.html', waiting_queue=waiting_queue, billing_queue=billing_queue)
+
+@bp.route('/select_queue/<int:queue_id>', methods=['POST'])
+@login_required
+def select_queue(queue_id):
+    queue = Queue.query.get(queue_id)
+    if queue:
+        if queue.status == 'waiting' and current_user.role == 'doctor':
+            queue.status = 'completed'
+        elif queue.status == 'billing' and current_user.role == 'pharmacist':
+            queue.status = 'paid'
+        db.session.commit()
+    return redirect(url_for('view_queue'))
 
 @bp.route('/prescription/<int:appointment_id>', methods=['GET', 'POST'])
 @login_required
