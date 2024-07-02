@@ -1,0 +1,76 @@
+<!-- queue.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Queue Management</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pure/2.0.6/pure-min.css">
+    <style>
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        table {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Waiting Queue</h2>
+        <table class="pure-table pure-table-bordered">
+            <thead>
+                <tr>
+                    <th>Position</th>
+                    <th>Patient Name</th>
+                    <th>Doctor</th>
+                    <th>Reason</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in waiting_queue %}
+                <tr>
+                    <td>{{ item.position }}</td>
+                    <td>{{ item.appointment.patient_name }}</td>
+                    <td>{{ item.appointment.doctor_name }}</td>
+                    <td>{{ item.appointment.reason }}</td>
+                    <td>{{ item.status }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <h2>Billing Queue</h2>
+        <table class="pure-table pure-table-bordered">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Patient Name</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for bill in billing_queue %}
+                <tr>
+                    <td>{{ bill.id }}</td>
+                    <td>{{ bill.appointment.patient_name }}</td>
+                    <td>{{ bill.amount }}</td>
+                    <td>{{ bill.status }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
