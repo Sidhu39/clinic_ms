@@ -1,5 +1,12 @@
 {% extends "layout.html" %}
 {% block content %}
-  <h1>Nurse Dashboard</h1>
-  <!-- Nurse-specific content -->
+  <h1 align="center">Nurse Dashboard</h1>
+ <form class="pure-form" align="center">
+   <p>
+       <button type="submit" formaction="{{ url_for('routes.register_patient') }}" class="pure-button pure-button-primary pure-controls"> Patient Registration </button>
+   </p>
+     <p>
+     <button type="submit" formaction="{{ url_for('routes.patient_visit_entry') }}" class="pure-button pure-button-primary pure-controls"> Patient Visit Entry </button>
+    </p>
+ </form>
 {% endblock %}

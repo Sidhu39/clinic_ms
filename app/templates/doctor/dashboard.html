@@ -1,75 +1,89 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Doctor Dashboard</title>
-    <link rel="stylesheet" href="https://unpkg.com/purecss@2.0.6/build/pure-min.css">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-        }
-        .header {
-            background: #1f8dd6;
-            color: white;
-            padding: 2em;
-            text-align: center;
-        }
-        .content {
-            margin: 2em;
-        }
-        .appointment-card {
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            padding: 1em;
-            margin-bottom: 1em;
-            background: #f9f9f9;
-        }
-        .appointment-card h3 {
-            margin-top: 0;
-        }
-        .appointment-card p {
-            margin: 0.5em 0;
-        }
-        .pure-button-primary {
-            background: #1f8dd6;
-            color: white;
-            text-decoration: none;
-            padding: 0.5em 1em;
-            border-radius: 5px;
-            display: inline-block;
-        }
-        .footer {
-            background: #f8f8f8;
-            padding: 2em;
-            text-align: center;
-            margin-top: 2em;
-        }
-    </style>
-</head>
-<body>
+{% extends "layout.html" %}
+{% block content %}
     <div class="header">
         <h1>Doctor Dashboard</h1>
         <p>Welcome, Dr. {{ doctor_name }}</p>
     </div>
 
-    <div class="content">
-        <h2>Today's Appointments</h2>
-        {% for q in appointments %}
-        <div class="appointment-card">
-            <h3>Patient ID: {{ q.appointment.patient_id }}</h3>
-            <p><strong>Patient Name:</strong> {{ q.appointment.patient_name }}</p>
-            <p><strong>Appointment Time:</strong> {{ q.appointment.time }}</p>
-            <p><strong>Reason for Visit:</strong> {{ q.appointment.reason }}</p>
-            <a href="{{ url_for('routes.prescribe_medications', appointment_id=q.appointment.id) }}" class="pure-button pure-button-primary">View Details</a>
+    <div class="container">
+    <h1>Doctor Home Screen</h1>
+    <form method="POST" action="{{ url_for('routes.patient_visit_entry') }}" class="pure-form pure-form-stacked">
+        <div class="queue-box">
+            <h2>Waiting Queue</h2>
+            {% for item in waiting_queue %}
+            <div class="queue-item" data-queue="{{ item.appointment.appointment_id }}">
+                {{ item.appointment.appointment_id }}
+            </div>
+            {% endfor %}
+            <input type="hidden" id="item.appointment.appointment_id" name="item.appointment.appointment_id" required>
         </div>
-        {% endfor %}
+        <div class="submit-btn">
+            <button type="submit" class="pure-button pure-button-primary">Submit</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    // JavaScript to handle the selection of a queue item
+    document.querySelectorAll('.queue-item').forEach(item => {
+        item.addEventListener('click', function() {
+            document.querySelectorAll('.queue-item').forEach(i => i.classList.remove('selected'));
+            this.classList.add('selected');
+            document.getElementById('selected_queue').value = this.getAttribute('data-queue');
+        });
+    });
+</script>
+
+<!--<div class="container">
+    <h1>Doctor Home Screen</h1>
+
+    <form method="POST" action="{{ url_for('routes.patient_visit_entry') }}" class="pure-form">
+        <div class="queue-container pure-u-1">
+            <h3>Waiting Queue</h3>
+            {% for item in waiting_queue %}
+            <ul class="queue-list">
+                <li {% if loop.first %} style="font-weight: bold; font-size: larger;" {% endif %}>
+                    <label>
+                        <input type="radio" name="queue_id" value="{{ item.appointment.appointment_id }}" required>
+                        {{ item.appointment.appointment_id }}
+                    </label>
+                </li>
+            </ul>
+            {% endfor %}
+        </div>
+
+        <button type="submit" class="pure-button pure-button-primary submit-btn">Submit</button>
+    </form>
     </div>
-    <div>
-        <a href="{{ url_for('routes.index') }}">Back to Home Page</a>
-    </div>
+
     <div class="footer">
         <p>&copy; 2024 ABC Clinic. All rights reserved.</p>
     </div>
-</body>
-</html>
+{% endblock %}--->
+        <!--</div>
+    <div class="content">
+        <table class="pure-g">
+    <tr>
+    <th class="pure-u-1-3">
+        <h2>Waiting Queue</h2>
+        <table>
+            <tr>
+                <th class="pure-u-3-5">Queue Number</th>
+                <th></th>
+                <th class="pure-u-3-1">Action</th>
+            </tr>
+            {% for item in waiting_queue %}
+            <tr {% if loop.first %}style="font-weight: bold; font-size: larger;"{% endif %}>
+                <td>{{ item.appointment.appointment_id }}</td>
+                <td align='center' class="pure-u-1-8">
+                    {% if current_user.role == 'doctor' %}
+                    <a href="{{ url_for('routes.appointment_details', appointment_id=item.appointment_id) }}">View Details</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    <div>
+        <a href="{{ url_for('routes.index') }}">Back to Home Page</a>
+    </div>-->

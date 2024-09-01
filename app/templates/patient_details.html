@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/purecss@2.0.6/build/pure-min.css">
+    <title>Patient Details Screen</title>
+    <style>
+        .container { max-width: 960px; margin: 0 auto; padding: 20px; }
+        .header { text-align: left; font-size: 24px; margin-bottom: 20px; }
+        .box { padding: 15px; border: 1px solid #ddd; margin-bottom: 20px; }
+        .submit { text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">Patient Details Screen</div>
+
+        <div class="box">
+            <h2>Patient Details:</h2>
+            <form class="pure-form pure-form-stacked" method="POST" action="{{ url_for('routes.view_queue') }}">
+                <fieldset>
+                    <label for="name">Patient Name:</label>
+                    <input id="name" name="name" type="text" value="{{ patient.patient_name }}" readonly>
+
+                    <label for="patient_id">Patient ID:</label>
+                    <input id="patient_id" name="patient_id" type="text" value="{{ patient.patient_id }}" readonly>
+
+                    <label for="gender">Gender:</label>
+                    <input id="gender" name="gender" type="text" value="{{ patient.gender }}" readonly>
+
+                    <label for="age">Age:</label>
+                    <input id="age" name="age" type="text" value="{{ patient.age }}" readonly>
+
+                    <label for="date_of_birth">Date of Birth:</label>
+                    <input id="date_of_birth" name="date_of_birth" type="text" value="{{ patient.birthdate }}" readonly>
+
+                    <label for="contact_number">Contact number:</label>
+                    <input id="contact_number" name="contact_number" type="text" value="{{ patient.contact_number }}" readonly>
+
+                    <label for="email">e-mail address:</label>
+                    <input id="email" name="email" type="text" value="{{ patient.email }}" readonly>
+                </fieldset>
+            </form>
+        </div>
+
+        <div class="box">
+            <h2>Visit Details:</h2>
+            <form class="pure-form pure-form-stacked" method="POST" action="{{ url_for('routes.patient_visit_entry') }}">
+                <fieldset>
+                    <label for="height">Height:</label>
+                    <input id="height" name="height" type="text" value="{{ visit.height }}" readonly>
+
+                    <label for="weight">Weight:</label>
+                    <input id="weight" name="weight" type="text" value="{{ visit.weight }}" readonly>
+
+                    <label for="blood_pressure_high">Blood Pressure High:</label>
+                    <input id="blood_pressure_high" name="blood_pressure_high" type="text" value="{{ visit.blood_pressure_high }}" readonly>
+
+                    <label for="blood_pressure_low">Blood Pressure Low:</label>
+                    <input id="blood_pressure_low" name="blood_pressure_low" type="text" value="{{ visit.blood_pressure_low }}" readonly>
+
+                    <label for="temperature">Temperature:</label>
+                    <input id="temperature" name="temperature" type="text" value="{{ visit.temperature }}" readonly>
+
+                    <label for="medical_condition">Medical Condition:</label>
+                    <input id="medical_condition" name="medical_condition" type="text" value="{{ visit.medical_condition }}" readonly>
+                </fieldset>
+            </form>
+        </div>
+
+        <div class="box">
+            <h2>Doctor Notes:</h2>
+            <form class="pure-form pure-form-stacked" method="POST" action="{{ url_for('routes.prescribe_medications' ,appointment_id=1 ) }}">
+                <fieldset>
+                    <textarea id="doctor_notes" name="doctor_notes" placeholder="Input within 1000 characters"></textarea>
+                </fieldset>
+                <div class="submit">
+            <button type="submit" class="pure-button pure-button-primary">Submit</button>
+        </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

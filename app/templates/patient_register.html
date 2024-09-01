@@ -1,0 +1,41 @@
+{% extends "layout.html" %}
+{% block content %}
+    <a href="{{ url_for('nurse.nurse_dashboard') }}" class="back-btn">&#8592;</a>
+    <h1 align="center" >Register Patient</h1>
+    <form method="POST" action="" class="pure-form pure-form-aligned">
+        {{ form.hidden_tag() }}
+        <p class="pure-controls">
+            {{ form.patient_name.label }}<br>
+            {{ form.patient_name(size=32) }}
+        </p>
+        <p class="pure-controls">
+            {{ form.patient_id.label }}<br>
+            {{ form.patient_id(size=10) }}
+        </p>
+        <p class="pure-controls">
+            {{ form.patient_blood_group.label }}<br>
+            {{ form.patient_blood_group() }}
+        </p>
+        <p class="pure-controls">
+            {{ form.gender.label }}<br>
+            {{ form.gender() }}
+        </p>
+        <p class="pure-controls">
+            {{ form.birthdate.label }}<br>
+            {{ form.birthdate() }}
+        </p>
+        <p class="pure-controls">
+            {{ form.currentdate.label }}<br>
+            {{ form.currentdate() }}
+        </p>
+        <p class="pure-controls">
+            {{ form.contact_number.label }}<br>
+            {{ form.contact_number(size=15) }}
+        </p>
+        <p class="pure-controls">
+            {{ form.email.label }}<br>
+            {{ form.email(size=64) }}
+        </p>
+        <p class="pure-button pure-button-primary pure-controls">{{ form.submit() }}</p>
+    </form>
+{% endblock %}
