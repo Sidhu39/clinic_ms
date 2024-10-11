@@ -20,10 +20,10 @@
             <h2>Patient Details:</h2>
             <form class="pure-form pure-form-stacked" method="POST" action="{{ url_for('routes.view_queue') }}">
                 <fieldset>
-                    <label for="name">Patient Name:</label>
+                    <label for="name">Patient Name</label>
                     <input id="name" name="name" type="text" value="{{ patient.patient_name }}" readonly>
 
-                    <label for="patient_id">Patient ID:</label>
+                    <label for="patient_id">Patient ID</label>
                     <input id="patient_id" name="patient_id" type="text" value="{{ patient.patient_id }}" readonly>
 
                     <label for="gender">Gender:</label>
@@ -49,35 +49,41 @@
             <form class="pure-form pure-form-stacked" method="POST" action="{{ url_for('routes.patient_visit_entry') }}">
                 <fieldset>
                     <label for="height">Height:</label>
-                    <input id="height" name="height" type="text" value="{{ visit.height }}" readonly>
+                    <input id="height" name="height" type="text" value="{{ patientvisit.height }}" readonly>
 
                     <label for="weight">Weight:</label>
-                    <input id="weight" name="weight" type="text" value="{{ visit.weight }}" readonly>
+                    <input id="weight" name="weight" type="text" value="{{ patientvisit.weight }}" readonly>
 
                     <label for="blood_pressure_high">Blood Pressure High:</label>
-                    <input id="blood_pressure_high" name="blood_pressure_high" type="text" value="{{ visit.blood_pressure_high }}" readonly>
+                    <input id="blood_pressure_high" name="blood_pressure_high" type="text" value="{{ patientvisit.blood_pressure_high }}" readonly>
 
                     <label for="blood_pressure_low">Blood Pressure Low:</label>
-                    <input id="blood_pressure_low" name="blood_pressure_low" type="text" value="{{ visit.blood_pressure_low }}" readonly>
+                    <input id="blood_pressure_low" name="blood_pressure_low" type="text" value="{{ patientvisit.blood_pressure_low }}" readonly>
 
                     <label for="temperature">Temperature:</label>
-                    <input id="temperature" name="temperature" type="text" value="{{ visit.temperature }}" readonly>
+                    <input id="temperature" name="temperature" type="text" value="{{ patientvisit.temperature }}" readonly>
 
                     <label for="medical_condition">Medical Condition:</label>
-                    <input id="medical_condition" name="medical_condition" type="text" value="{{ visit.medical_condition }}" readonly>
+                    <input id="medical_condition" name="medical_condition" type="text" value="{{ patientvisit.medical_condition }}" readonly>
                 </fieldset>
+
             </form>
         </div>
 
         <div class="box">
             <h2>Doctor Notes:</h2>
-            <form class="pure-form pure-form-stacked" method="POST" action="{{ url_for('routes.prescribe_medications' ,appointment_id=1 ) }}">
-                <fieldset>
-                    <textarea id="doctor_notes" name="doctor_notes" placeholder="Input within 1000 characters"></textarea>
-                </fieldset>
+            <form class="pure-form pure-form-stacked" method="POST" action="{{ url_for('routes.appointment_details', patient_id=patient.id) }}">
+                <div class="pure-form-group">
+                    <label for="doctor_notes">{{ form.doctor_notes.label }}</label>
+                    {{ form.doctor_notes() }}
+                </div>
+                <div class="pure-form-group">
+                    <label for="medications">{{ form.medications.label }}</label>
+                    {{ form.medications() }}
+                </div>
                 <div class="submit">
-            <button type="submit" class="pure-button pure-button-primary">Submit</button>
-        </div>
+                <button type="submit" class="pure-button pure-button-primary">Submit</button>
+            </div>
             </form>
         </div>
     </div>

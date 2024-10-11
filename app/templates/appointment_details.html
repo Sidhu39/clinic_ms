@@ -2,19 +2,19 @@
 {% extends "layout.html" %}
 {% block content %}
 <h1>Appointment Details</h1>
-<p>Patient Name: {{ appointment.patient_name }}</p>
-<p>Patient ID: {{ appointment.patient_id }}</p>
-<p>Weight: {{ appointment.patient_weight }}</p>
-<p>Blood Group: {{ appointment.patient_blood_group }}</p>
-<p>Height: {{ appointment.patient_height }}</p>
+<p>Patient Name: {{ appointment2.patient_name }}</p>
+<p>Patient ID: {{ appointment2.patient_id }}</p>
+<p>Weight: {{ appointment1.weight }}</p>
+<p>Blood Group: {{ appointment2.patient_blood_group }}</p>
+<p>Height: {{ appointment1.height }}</p>
 <p>Date: {{ appointment.date }}</p>
 <p>Time: {{ appointment.time }}</p>
-<p>Doctor Name: {{ appointment.doctor_name }}</p>
-<p>Reason: {{ appointment.reason }}</p>
+<p>Doctor Name: {{ doctor_name }}</p>
+<p>Reason: {{ appointment1.doctor_notes }}</p>
 
 <form method="POST">
     <label for="prescription">Prescription:</label>
-    <textarea name="prescription" required>{{ appointment.prescription }}</textarea>
+    <textarea name="prescription" required>{{ appointment1.medications }}</textarea>
     <button type="submit">Submit Prescription</button>
 </form>
 {% endblock %}

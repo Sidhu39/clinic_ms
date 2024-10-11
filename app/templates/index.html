@@ -71,13 +71,12 @@
 </head>
 <body>
     <header>
-        <h1>Welcome to Clinic Management System</h1>
+        <h1>Welcome to ABC Clinic</h1>
     </header>
     <nav>
-        <a href="{{ url_for('doctor.doctor_dashboard') }}">Doctor</a>
-        <a href="{{ url_for('nurse.nurse_dashboard') }}">Nurse</a>
-        <a href="{{ url_for('patient.patient_dashboard') }}">Patient</a>
-        <a href="{{ url_for('cashier.cashier_dashboard') }}">Cashier</a>
+        <a href="{{ url_for('routes.login') }}">Login</a>
+        <a href="{{ url_for('routes.logout') }}">Logout</a>
+        <a href="{{ url_for('routes.register') }}">Register</a>
     </nav>
     <div class="container">
         <h2>Select Your Role</h2>
@@ -93,22 +92,11 @@
             <p>Assist doctors and manage patient care.</p>
             <a href="{{ url_for('nurse.nurse_dashboard') }}">Go to Dashboard</a>
         </div>
-        <div class="card">
-            <img src="{{ url_for('static', filename='images/patient.jpg') }}" alt="Patient">
-            <h3>Patient</h3>
-            <p>Book appointments, view records, and more.</p>
-            <a href="{{ url_for('patient.patient_dashboard') }}">Go to Dashboard</a>
-        </div>
+
         <div class="card">
             <img src="{{ url_for('static', filename='images/cashier.jpg') }}" alt="Cashier">
             <h3>Cashier</h3>
             <p>Manage finances and billing.</p>
             <a href="{{ url_for('cashier.cashier_dashboard') }}">Go to Dashboard</a>
-        </div><br/>
-        <a href="{{ url_for('routes.login') }}">Login</a>
-        <a href="{{ url_for('routes.logout') }}">Logout</a>
-        <a href="{{ url_for('routes.register') }}">Register</a>
-        <a href="{{ url_for('appointment.book_appointment') }}">Book an Appointment</a>
-    </div>
 </body>
 </html>

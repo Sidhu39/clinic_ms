@@ -9,7 +9,7 @@
         <table>
             {% for item in waiting_queue %}
             <tr {% if loop.first %}style="font-weight: bold; font-size: larger;"{% endif %}>
-                <td>{{ item.appointment.appointment_id }}</td>
+                <td>{{ item.appointment_id }}</td>
             </tr>
             {% endfor %}
         </table>
@@ -19,8 +19,8 @@
         <h2 style="font-size: 40px">Billing Queue</h2>
         <table>
             {% for item in billing_queue %}
-            <tr {% if loop.first %}style="font-weight: bold; font-size: larger;"{% endif %}>
-                <td>{{ item.appointment.appointment_id }}</td>
+            <tr {% if loop.first %} style="font-weight: bold; font-size: larger;" {% endif %}>
+                <td>{{ item.appointment_id }}</td>
             </tr>
             {% endfor %}
         </table>

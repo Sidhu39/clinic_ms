@@ -1,7 +1,9 @@
 from datetime import datetime
 import random
 import string
+from pydoc import classname
 
+from alembic.ddl.base import format_column_name
 from wtforms.validators import Optional
 from datetime import datetime
 from flask_wtf import FlaskForm
@@ -11,6 +13,8 @@ from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextA
 from wtforms.validators import ValidationError, DataRequired, Email, EqualTo, Length
 from app.models import User
 
+
+
 class LoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired()])
@@ -19,6 +23,7 @@ class LoginForm(FlaskForm):
 
 
 class PatientRegistrationForm(FlaskForm):
+
     patient_name = StringField('Patient Name', validators=[DataRequired(), Length(min=2, max=50)])
     patient_id = StringField('Patient ID', validators=[DataRequired(), Length(min=1, max=10)])
     patient_blood_group = SelectField('Blood Group',
@@ -31,19 +36,21 @@ class PatientRegistrationForm(FlaskForm):
     currentdate = DateField('Current Date', format='%Y-%m-%d', default=datetime.today, validators=[DataRequired()])
     contact_number = StringField('Contact Number', validators=[DataRequired(), Length(min=10, max=15)])
     email = StringField('Email', validators=[DataRequired(), Email()])
-    age = IntegerField('Age', render_kw={'readonly': True})
-    submit = SubmitField('Register')
-
     def calculate_age(self):
         birthdate = self.birthdate.data
         currentdate = self.currentdate.data
         age = currentdate.year - birthdate.year - (
-                    (currentdate.month, currentdate.day) < (birthdate.month, birthdate.day))
+                (currentdate.month, currentdate.day) < (birthdate.month, birthdate.day))
         return age
 
-    def validate_age_field(self):
+    age = IntegerField('Age', render_kw={'readonly': True})
+    submit = SubmitField('Register')
+    '''default = currentdate.default.year - birthdate.default.year - (
+            (currentdate.default.month, currentdate.default.day) < (birthdate.default.month, birthdate.default.day))'''
+
+    '''def validate_age_field(self):
         self.age.data = self.calculate_age()
-        return True
+        return True'''
 
 class RegistrationForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
@@ -66,53 +73,32 @@ class QueueForm(FlaskForm):
     queue_position = IntegerField('Queue Position', validators=[DataRequired()])
     submit = SubmitField('Update Queue Position')
 
-def generate_random_id():
-    return ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
-class AppointmentForm(FlaskForm):
-    patient_name = StringField('Patient Name', validators=[DataRequired()])
-    patient_id = StringField('Patient ID', validators=[DataRequired()])
-    patient_weight = FloatField('Patient Weight', validators=[DataRequired()])
-    patient_blood_group = StringField('Patient Blood Group', validators=[DataRequired()])
-    patient_height = FloatField('Patient Height', validators=[DataRequired()])
-    date = DateField('Date', validators=[DataRequired()])
-    time = TimeField('Time', validators=[DataRequired()])
-    doctor = SelectField('Doctor', validators=[DataRequired()], coerce=str)
-    reason = StringField('Reason for Appointment')
-    submit = SubmitField('Book Appointment')
-
-    def __init__(self, *args, **kwargs):
-        super(AppointmentForm, self).__init__(*args, **kwargs)
-        self.doctor.choices = [(doctor.id, doctor.username) for doctor in User.query.filter_by(role='doctor').all()]
-
-class PrescriptionForm(FlaskForm):
+'''class PrescriptionForm(FlaskForm):
+    doctor_notes = TextAreaField('Doctor\'s Notes', validators=[DataRequired()])
+    appointment_id = SelectField('Appointment', coerce=int)
     medications = TextAreaField('Medications', validators=[DataRequired()])
     follow_up = BooleanField('Follow-up Required')
-    submit = SubmitField('Submit Prescription')
+    submit = SubmitField('Submit Prescription')'''
 
 class BillingForm(FlaskForm):
     amount = FloatField('Amount', validators=[DataRequired()])
     submit = SubmitField('Generate Bill')
+    billing_queue = SelectField('Billing Queue', choices=[], coerce=int)
 
 
 class PatientVisitForm(FlaskForm):
+
     patient_id = StringField('Patient ID', validators=[DataRequired(), Length(min=1, max=20)])
     patient_name = StringField('Patient Name', validators=[DataRequired(), Length(min=1, max=100)])
     height = FloatField('Height (cms)', validators=[DataRequired()])
     weight = FloatField('Weight (kgs)', validators=[DataRequired()])
+    age = IntegerField('Age', render_kw={'readonly': True})
     blood_pressure_high = FloatField('Blood Pressure High', validators=[DataRequired()])
     blood_pressure_low = FloatField('Blood Pressure Low', validators=[DataRequired()])
     temperature = FloatField('Temperature (F)', validators=[DataRequired()])
     medical_condition = StringField('Medical Condition', validators=[DataRequired(), Length(min=1, max=255)])
+    reason = StringField('Reason for Appointment')
+    medications = TextAreaField('Medications', validators=[DataRequired()])
+    doctor_notes = TextAreaField('Doctor\'s Notes', validators=[DataRequired()])
     submit = SubmitField('Submit')
 
-class VisitForm(FlaskForm):
-    patient_id = StringField('Patient ID', validators=[DataRequired(), Length(min=1, max=20)])
-    patient_name = StringField('Patient Name', validators=[DataRequired(), Length(min=1, max=100)])
-    height = StringField('Height')
-    weight = StringField('Weight')
-    blood_pressure_high = StringField('Blood Pressure High')
-    blood_pressure_low = StringField('Blood Pressure Low')
-    temperature = StringField('Temperature')
-    medical_condition = StringField('Medical Condition')
-    doctor_notes = TextAreaField('Doctor Notes')
-    submit = SubmitField('Submit')

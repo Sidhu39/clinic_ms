@@ -78,14 +78,21 @@
 <body>
     <div class="container">
         <a href="{{ url_for('nurse.nurse_dashboard') }}" class="back-btn">&#8592;</a>
+        <form>
+            <div>
+                <button type="submit" formaction="{{ url_for('routes.register_patient') }}" class="pure-button pure-button-primary register-btn">Register Patient</button>
+            </div>
+        </form>
         <h1>Patient Visit Entry</h1>
         <form class="pure-form pure-form-stacked" method="post" action="{{ url_for('routes.patient_visit_entry') }}">
             {{ form.hidden_tag() }}
-            <div class="pure-control-group">
-                    {{ form.patient_id.label }} {{ form.patient_id(size=20) }}
+                <div class="form-group">
+                    {{ form.patient_id.label }}:
+                    {{ form.patient_id(class="form-control", id="patient_id") }}
                 </div>
-                <div class="pure-control-group">
-                    {{ form.patient_name.label }} {{ form.patient_name(size=40) }}
+                <div class="form-group">
+                    {{ form.patient_name.label }}:
+                    {{ form.patient_name(class="form-control", id="patient_name", readonly=True) }}
                 </div>
                 <div class="pure-control-group">
                     {{ form.height.label }} {{ form.height() }}
@@ -105,16 +112,39 @@
                 <div class="pure-control-group">
                     {{ form.medical_condition.label }} {{ form.medical_condition() }}
                 </div>
+                <div class="pure-form-group">
+                    <label for="doctor_notes">{{ form.doctor_notes.label }}</label>
+                    {{ form.doctor_notes() }}
+                </div>
+                <div class="pure-form-group">
+                    <label for="medications">{{ form.medications.label }}</label>
+                    {{ form.medications() }}
+                </div>
                 <div class="pure-controls">
                     <button type="submit" class="pure-button pure-button-primary">Submit</button>
                 </div>
+
         </form>
-        <form>
-            <div>
-                <button type="submit" formaction="{{ url_for('routes.register_patient') }}" class="pure-button pure-button-primary register-btn">Register Patient</button>
-            </div>
-        </form>
+
     </div>
+    <script>
+        document.getElementById('patient_id').addEventListener('change', function() {
+            var patientID = document.getElementById("patient_id").value;
+            fetch(`/search_patient?patient_id=${patientID}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.patient_name) {
+                        document.getElementById("patient_name").value = data.patient_name;
+                        // Auto-fill other fields here if needed
+                    } else {
+                        alert('Patient not found');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching patient data:', error);
+                });
+        });
+    </script>
 </body>
 </html>
 

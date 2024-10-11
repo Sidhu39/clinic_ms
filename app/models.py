@@ -63,13 +63,13 @@ from flask_login import UserMixin
 def generate_random_id():
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
 
+
 class User(UserMixin,db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), index=True, unique=True)
     email = db.Column(db.String(120), index=True, unique=True)
     password_hash = db.Column(db.String(128))
     role = db.Column(db.String(64))
-    appointments = db.relationship('Appointment', backref='patient', lazy='dynamic')
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
 
@@ -79,46 +79,38 @@ class User(UserMixin,db.Model):
 
     def get_id(self):
         return str(self.id)
-class Appointment(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    patient_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    appointment_id = db.Column(db.String(64), unique=True, nullable=False, default=generate_random_id)
-    date = db.Column(db.Date, nullable=False)
-    time = db.Column(db.Time, nullable=False)
-    doctor_id = db.Column(db.Integer, nullable=False)
-    reason = db.Column(db.String(256))
-    patient_name = db.Column(db.String(64))
-    doctor_name = db.Column(db.String(64), nullable=False, autoincrement=True)
-    patient_weight = db.Column(db.Float)
-    patient_blood_group = db.Column(db.String(8))
-    patient_height = db.Column(db.Float)
-    status = db.Column(db.String(50), nullable=False, default="waiting")
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    prescription = db.Column(db.Text, nullable=True)
-
 class Queue(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    appointment_id = db.Column(db.Integer, db.ForeignKey('appointment.id'))
+    id = db.Column(db.Integer, primary_key=True, nullable=False)
+    appointment_id = db.Column(db.String(64), db.ForeignKey('patient.patient_id'), nullable=False)
     position = db.Column(db.Integer, nullable=False)
     status = db.Column(db.String(64), nullable=False, default='waiting')
-    appointment = db.relationship('Appointment', backref=db.backref('queues', lazy=True))
-class Prescription(db.Model):
+    appointment = db.relationship('Patient', backref=db.backref('queues', lazy=True))
+'''class Prescription(db.Model):
+    __tablename__ = 'prescription'
     id = db.Column(db.Integer, primary_key=True)
-    appointment_id = db.Column(db.Integer, db.ForeignKey('appointment.id'))
-    medications = db.Column(db.Text)
+    appointment_id = db.Column(db.String(64), db.ForeignKey('patient.id'))
+    doctor_notes = db.Column(db.Text, nullable=False)
+    medications = db.Column(db.Text, nullable=False)
     follow_up = db.Column(db.Boolean, default=False)
+    appointment = db.relationship('Patient', backref=db.backref('prescription', lazy=True))
+
+    def __repr__(self):
+        return f"<PatientPrescibed {self.patient_name}>"'''
 
 class Billing(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    appointment_id = db.Column(db.Integer, db.ForeignKey('appointment.id'))
+    id = db.Column(db.Integer, primary_key=True, nullable=False)
+    appointment_id = db.Column(db.String(64), db.ForeignKey('patient.patient_id'), nullable=False)
     amount = db.Column(db.Float, nullable=False)
     status = db.Column(db.String(50), nullable=False, default='Unpaid')
-    appointment = db.relationship('Appointment', backref=db.backref('billings', lazy=True))
+    appointment = db.relationship('Patient', backref=db.backref('billings', lazy=True))
 
 
 class PatientVisit(db.Model):
+    __tablename__ = 'patientvisit'
     id = db.Column(db.Integer, primary_key=True)
-    patient_id = db.Column(db.String(20), nullable=False)
+    patient_id = db.Column(db.String, db.ForeignKey('patient.patient_id'), nullable=False)
+    appointment_id = db.Column(db.String(64), unique=True, nullable=False, default=generate_random_id)
+    patient = db.relationship('Patient', backref=db.backref('visits', lazy=True))
     patient_name = db.Column(db.String(100), nullable=False)
     height = db.Column(db.Integer, nullable=False)
     weight = db.Column(db.Integer, nullable=False)
@@ -127,30 +119,32 @@ class PatientVisit(db.Model):
     temperature = db.Column(db.Integer, nullable=False)
     medical_condition = db.Column(db.String(255), nullable=False)
     visit_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    status = db.Column(db.String(50), nullable=False, default="waiting")
+    queue_position = db.Column(db.Integer, nullable=True)
+    doctor_notes = db.Column(db.Text, nullable=False)
+    medications = db.Column(db.Text, nullable=False)
+
 
     def __repr__(self):
         return f"<PatientVisit {self.patient_name}>"
 
 class Patient(db.Model):
+    __tablename__ = 'patient'
     id = db.Column(db.Integer, primary_key=True)
     patient_name = db.Column(db.String(50), nullable=False)
-    patient_id = db.Column(db.String(10), nullable=False, unique=True)
+    patient_id = db.Column(db.String(255), default='test', nullable=False)
     patient_blood_group = db.Column(db.String(3), nullable=False)
     gender = db.Column(db.String(10), nullable=False)
     birthdate = db.Column(db.Date, nullable=False)
-    age = db.Column(db.Integer)
+    currentdate = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     contact_number = db.Column(db.String(15), nullable=False)
     email = db.Column(db.String(120), nullable=False)
 
-class Visit(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    patient_id = db.Column(db.Integer, db.ForeignKey('patient.id'), nullable=False)
-    patient = db.relationship('Patient', backref=db.backref('visits', lazy=True))
-    height = db.Column(db.String(10))
-    weight = db.Column(db.String(10))
-    blood_pressure_high = db.Column(db.String(10))
-    blood_pressure_low = db.Column(db.String(10))
-    temperature = db.Column(db.String(10))
-    medical_condition = db.Column(db.String(100))
-    doctor_notes = db.Column(db.Text)
-    visit_date = db.Column(db.DateTime, default=datetime.utcnow)
+    def calculate_age(self):
+        birthdate = self.birthdate.data
+        currentdate = self.currentdate.data
+        age = currentdate.year - birthdate.year - (
+                (currentdate.month, currentdate.day) < (birthdate.month, birthdate.day))
+        return age
+
+    age = db.Column(db.Integer, nullable=False, default=1)

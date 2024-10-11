@@ -1,0 +1,16 @@
+{% extends "layout.html" %}
+{% block content %}
+<body>
+    <h1>Prescriptions List</h1>
+    <ul>
+        {% for prescription in prescriptions %}
+        <li>
+            <strong>{{ prescription.patient.name }}</strong> - {{ prescription.doctor_notes }} (Medications: {{ prescription.medications }})
+            {% if prescription.follow_up %}
+                <span>(Follow-up required)</span>
+            {% endif %}
+        </li>
+        {% endfor %}
+    </ul>
+</body>
+{% endblock %}

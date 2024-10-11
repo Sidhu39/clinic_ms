@@ -4,18 +4,20 @@
         <h1>Doctor Dashboard</h1>
         <p>Welcome, Dr. {{ doctor_name }}</p>
     </div>
-
+    <a href="{{ url_for('routes.index') }}" class="back-btn">&#8592;</a>
     <div class="container">
     <h1>Doctor Home Screen</h1>
-    <form method="POST" action="{{ url_for('routes.patient_visit_entry') }}" class="pure-form pure-form-stacked">
+
+    <form method="POST" action="{{ url_for('routes.patient_details', patient_id=1) }}" class="pure-form pure-form-stacked">
+
         <div class="queue-box">
             <h2>Waiting Queue</h2>
             {% for item in waiting_queue %}
-            <div class="queue-item" data-queue="{{ item.appointment.appointment_id }}">
-                {{ item.appointment.appointment_id }}
+            <div class="queue-item" data-queue="{{ item.appointment_id }}">
+                {{ item.appointment_id }}
             </div>
             {% endfor %}
-            <input type="hidden" id="item.appointment.appointment_id" name="item.appointment.appointment_id" required>
+            <input type="hidden" id="item.appointment_id" name="item.appointment_id" required>
         </div>
         <div class="submit-btn">
             <button type="submit" class="pure-button pure-button-primary">Submit</button>

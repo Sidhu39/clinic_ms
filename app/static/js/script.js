@@ -25,3 +25,21 @@ document.addEventListener('DOMContentLoaded', function() {
         fetchData('/api/data');
     });
 });
+
+function searchPatient() {
+    var patientID = document.getElementById("patient_id").value;
+
+    // AJAX request to the Flask route
+    fetch('/search_patient/' + patientID)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Populate the form fields with the returned data
+                document.getElementById("patient_name").value = data.patient_name;
+                // Populate other fields like height, weight, etc.
+            } else {
+                alert("Patient not found!");
+            }
+        })
+        .catch(error => console.error('Error:', error));
+}

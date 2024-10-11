@@ -1,6 +1,16 @@
 {% extends "layout.html" %}
 {% block content %}
   <h1>Cashier Dashboard</h1>
-  <a href="{{ url_for('routes.logout') }}"
-     class="pure-button pure-button-primary" ><br/><br/><p align="right">Logout<img src="{{ url_for('static', filename='images/logout.jpg') }}" alt="Logout" style="width:25pt" align="right"></p></a>
+    <form method="POST" action="{{ url_for('routes.billing', patient_id=1) }}">
+        {{ form.hidden_tag() }}
+        <div class="billing-queue-container">
+            <label for="billing_queue"><strong>Billing Queue</strong></label><br>
+            {{ form.billing_queue(class="billing-queue-select") }}
+        </div>
+
+        <button type="submit" class="submit-button">Submit</button>
+    </form>
+
+<a href="{{ url_for('routes.logout') }}"
+     class="pure-button pure-button-primary" ><img src="{{ url_for('static', filename='images/logout.jpg') }}" alt="Logout" style="width:25pt" align="right"></a>
 {% endblock %}

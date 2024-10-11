@@ -3,10 +3,14 @@ from sqlalchemy.exc import SQLAlchemyError
 
 #from app.routes import bp
 from app import db
-from app.forms import LoginForm, RegistrationForm, AppointmentForm, PrescriptionForm, PatientRegistrationForm, \
-    PatientVisitForm, VisitForm
-from app.models import Queue, Prescription, User, Appointment, Billing, Patient, PatientVisit, Visit
+'''from app.forms import LoginForm, RegistrationForm, PrescriptionForm, PatientRegistrationForm, \
+    PatientVisitForm'''
+from app.forms import LoginForm, RegistrationForm, PatientRegistrationForm, \
+    PatientVisitForm
+'''from app.models import Queue, Prescription, User, Billing, Patient, PatientVisit'''
+from app.models import Queue, User, Billing, Patient, PatientVisit
 from flask_login import current_user, login_user, logout_user, login_required
+
 
 bp = Blueprint('routes', __name__)
 
@@ -83,6 +87,7 @@ def register_patient():
                 patient_blood_group=form.patient_blood_group.data,
                 gender=form.gender.data,
                 birthdate=form.birthdate.data,
+                currentdate=form.currentdate.data,
                 contact_number=form.contact_number.data,
                 email=form.email.data
         )
@@ -90,78 +95,77 @@ def register_patient():
         db.session.commit()
         return redirect(url_for('routes.index'))
     return render_template('patient_register.html', title='Patient Registration', form=form)
-@bp.route('/book_appointment', methods=['GET', 'POST'])
-@login_required
-def book_appointment():
-    form = AppointmentForm()
-    if form.validate_on_submit():
-        appointment = Appointment(
-            patient_id=form.patient_id.data,
-            date=form.date.data,
-            time=form.time.data,
-            doctor_id=form.doctor.data,
-            doctor_name=form.doctor.data,
-            reason=form.reason.data,
-            patient_name=form.patient_name.data,
-            patient_weight=form.patient_weight.data,
-            patient_blood_group=form.patient_blood_group.data,
-            patient_height=form.patient_height.data,
-        )
-        db.session.add(appointment)
-        db.session.commit()
-        queue = Queue(appointment_id=appointment.id, position=Queue.query.count() + 1)
-        db.session.add(queue)
-        db.session.commit()
-        flash('Appointment booked successfully!', 'success')
-        return redirect(url_for('routes.index'))
-    return render_template('appointment.html', title='Book Appointment', form=form)
 
-@bp.route('/queue')
+@bp.route('/queue', methods=['GET', 'POST'])
 @login_required
 def view_queue():
-    waiting_queue = db.session.query(Queue).join(Appointment).filter(Queue.status == 'waiting').order_by(Queue.position).all()
-    billing_queue = db.session.query(Queue).join(Appointment).filter(Queue.status == 'billing').order_by(Queue.position).all()
+    waiting_queue =  Queue.query.filter(Queue.status=='waiting')
+
+    '''db.session.query(Queue).join(Patient).filter(Queue.status == 'waiting').order_by(
+        Queue.position).all()'''
+    print('test')
+    billing_queue = Queue.query.filter(Queue.status=='billing')
+
+    '''db.session.query(Queue).join(Patient).filter(Queue.status == 'billing').order_by(
+        Queue.position).all()'''
+    print("hello")
     return render_template('view_queue.html', waiting_queue=waiting_queue, billing_queue=billing_queue)
 
-@bp.route('/prescription/<int:appointment_id>', methods=['GET', 'POST'])
+'''@bp.route('/prescription/<int:patient_id>', methods=['GET', 'POST'])
 @login_required
-def prescribe_medications(appointment_id):
+def prescribe_medications(patient_id):
     if current_user.role != 'doctor':
         return redirect(url_for('routes.index'))
-    appointment = Appointment.query.get_or_404(appointment_id)
+    appointment = Patient.query.get_or_404(patient_id)
     form = PrescriptionForm()
-    if form.validate_on_submit():
-        prescription = Prescription(
-            appointment_id=appointment_id,
-            medications=form.medications.data,
-            follow_up=form.follow_up.data
-        )
-        db.session.add(prescription)
-        db.session.commit()
-        flash('Prescription submitted successfully!', 'success')
-        return redirect(url_for('routes.view_queue'))
-    return render_template('prescribe_medications.html', title='Prescribe Medications', form=form, appointment=appointment)
 
-@bp.route('/billing/<int:queue_id>', methods=['GET', 'POST'])
+    # Populate the appointment_id field with patients
+    form.appointment_id.choices = [(patient.id, patient.patient_name) for patient in Patient.query.all()]
+
+    if form.validate_on_submit():
+        # Create a new Prescription object with form data
+        prescription = Prescription(
+            doctor_notes=form.doctor_notes.data,
+            medications=form.medications.data,
+            follow_up=form.follow_up.data,
+            appointment_id=form.appointment_id.data
+        )
+
+        # Add and commit to the database
+        try:
+            db.session.add(prescription)
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()  # Rollback if there's an error
+            print(f"Error committing to the database: {e}")
+        return redirect(url_for('prescription_list'))
+    return render_template('prescribe_medications.html', title='Prescribe Medications', form=form, appointment=appointment)
+'''
+@bp.route('/billing/<int:patient_id>',methods=['GET', 'POST'])
 @login_required
-def billing(queue_id):
-    queue = Queue.query.get_or_404(queue_id)
-    appointment = queue.appointment
+def billing(patient_id):
+    if current_user.role != 'cashier':
+        flash('Unauthorized access!', 'danger')
+        return redirect(url_for('routes.index'))
+    appointment = PatientVisit.query.filter_by(id=patient_id).first()
+    appointment1 = Patient.query.filter_by(id=patient_id).first()
+    queue = Queue.query.filter_by(appointment_id=appointment.appointment_id).first()
     if request.method == 'POST':
         amount = request.form['amount']
-        billing = Billing(appointment_id=appointment.id, amount=amount, status='paid')
-        queue.status = 'completed'
+        billing = Billing(appointment_id=appointment.appointment_id, amount=amount, status='paid')
+        appointment.status = 'completed'
         db.session.add(billing)
         db.session.commit()
+        db.session.delete(appointment)
         db.session.delete(queue)
         db.session.commit()
         return redirect(url_for('routes.view_queue'))
-    return render_template('billing.html', appointment=appointment)
+    return render_template('billing.html', appointment=appointment, appointment1=appointment1)
 
-@bp.route('/select_queue', methods=['POST'])
+@bp.route('/select_queue/<int:patient_id>', methods=['GET', 'POST'])
 @login_required
-def select_queue(appointment_id):
-    queue = Appointment.query.get_or_404(appointment_id)
+def select_queue(patient_id):
+    queue = PatientVisit.query.get_or_404(patient_id)
     if queue:
         if queue.status == 'waiting' and current_user.role == 'doctor':
             queue.status = 'completed'
@@ -170,30 +174,33 @@ def select_queue(appointment_id):
         db.session.commit()
     return redirect(url_for('routes.view_queue'))
 
-@bp.route('/appointment/<int:appointment_id>', methods=['GET', 'POST'])
+@bp.route('/appointment/<int:patient_id>', methods=['GET', 'POST'])
 @login_required
-def appointment_details(appointment_id):
-    appointment = Appointment.query.get_or_404(appointment_id)
+def appointment_details(patient_id):
+    appointment = Queue.query.get_or_404(patient_id)
+    appointment1 = PatientVisit.query.filter_by(id=patient_id).first()
+    appointment2 = Patient.query.filter_by(id=patient_id).first()
     if request.method == 'POST':
-        queue = Queue.query.filter_by(appointment_id=appointment.id).first()
+
+        queue = Queue.query.filter_by(appointment_id=appointment.appointment_id).first()
         queue.status = 'completed'
         existing_billing_item = Queue.query.filter_by(
-            appointment_id=queue.appointment.id,
+            appointment_id=queue.appointment_id,
             status='billing'
         ).first()
 
         # Only add to billing queue if not already present
         if not existing_billing_item:
             new_queue_item = Queue(
-                appointment_id=queue.appointment.id,
+                appointment_id=queue.appointment_id,
                 position=Queue.query.filter_by(status='billing').count() + 1,
                 status='billing'
             )
             db.session.add(new_queue_item)
-
+        db.session.delete(queue)
         db.session.commit()
         return redirect(url_for('routes.view_queue'))
-    return render_template('appointment_details.html', appointment=appointment)
+    return render_template('appointment_details.html',doctor_name=current_user.username, appointment=appointment, appointment1=appointment1, appointment2=appointment2)
 
 
 @bp.route('/patient_visitentry', methods=['GET', 'POST'])
@@ -202,49 +209,79 @@ def patient_visit_entry():
     if current_user.role != 'nurse':
         flash('Unauthorized access!', 'danger')
         return redirect(url_for('routes.index'))
-
+    form1=PatientRegistrationForm()
     form = PatientVisitForm()
     if form.validate_on_submit():
+
         visit = PatientVisit(
-            patient_id=form.patient_id.data,
-            patient_name=form.patient_name.data,
-            height=form.height.data,
-            weight=form.weight.data,
-            blood_pressure_high=form.blood_pressure_high.data,
-            blood_pressure_low=form.blood_pressure_low.data,
-            temperature=form.temperature.data,
-            medical_condition=form.medical_condition.data
-        )
-        db.session.add(visit)
-        db.session.commit()
-        flash('Patient visit recorded successfully!', 'success')
-        return redirect(url_for('routes.view_queue'))  # Change to your actual redirect route
-    return render_template('patient_visitentry.html', form=form)
-
-
-@bp.route('/patient_details/<int:patient_id>')
-def patient_details(patient_id):
-    if current_user.role != 'doctor':
-        flash('Unauthorized access!', 'danger')
-        return redirect(url_for('routes.index'))
-    patient = Patient.query.filter_by(id=patient_id).first()
-    visit = PatientVisit.query.filter_by(patient_id=patient.id).first()
-
-    form = VisitForm()
-    if form.validate_on_submit():
-        visit = Visit(
-            patient_id=form.patient_id.data,
-            patient_name=form.patient_name.data,
+            patient_id=form1.patient_id.data,
+            patient_name=form1.patient_name.data,
             height=form.height.data,
             weight=form.weight.data,
             blood_pressure_high=form.blood_pressure_high.data,
             blood_pressure_low=form.blood_pressure_low.data,
             temperature=form.temperature.data,
             medical_condition=form.medical_condition.data,
-            doctor_notes=form.doctor_notes.data
+            doctor_notes=form.doctor_notes.data,
+            medications=form.medications.data
         )
         db.session.add(visit)
         db.session.commit()
+        queue = Queue(appointment_id=visit.appointment_id, position=Queue.query.count() + 1)
+        db.session.add(queue)
+        db.session.commit()
+        flash('Appointment booked successfully!', 'success')
+        return redirect(url_for('routes.view_queue'))  # Change to your actual redirect route
+
+    return render_template('patient_visitentry.html', form=form)
+
+
+@bp.route('/patient_details/<int:patient_id>', methods=['GET', 'POST'])
+def patient_details(patient_id):
+    if current_user.role != 'doctor':
+        flash('Unauthorized access!', 'danger')
+        return redirect(url_for('routes.index'))
+    patient=Patient.query.filter_by(id=patient_id).first()
+    patientvisit=PatientVisit.query.filter_by(id=patient_id).first()
+    print(patient)
+    if patient is None:
+        return "Patient not found", 404
+    form1 = PatientRegistrationForm()
+    form = PatientVisitForm()
+    if form.validate_on_submit():
+        visit = PatientVisit(
+            patient_id=form1.patient_id.data,
+            patient_name=form.patient_name.data,
+            height=form.height.data,
+            weight=form.weight.data,
+            age=form.age.data,
+            blood_pressure_high=form.blood_pressure_high.data,
+            blood_pressure_low=form.blood_pressure_low.data,
+            temperature=form.temperature.data,
+            medical_condition=form.medical_condition.data,
+        )
+        db.session.add(visit)
+        db.session.commit()
+        db.session.delete(patient)
+        db.session.delete(patientvisit)
+        db.session.commit()
         flash('Patient visit recorded successfully!', 'success')
         return redirect(url_for('routes.view_queue'))
-    return render_template('patient_details.html', patient=patient, visit=visit)
+    return render_template('patient_details.html', patient=patient, patient_id=patient.id, patientvisit=patientvisit, form=form)
+
+
+from flask import Flask, jsonify, request
+from app.models import Patient
+
+@bp.route('/search_patient', methods=['GET'])
+def search_patient():
+    patient_id = request.args.get('patient_id')
+    if patient_id:
+        patient = Patient.query.get_or_404(patient_id)
+        if patient:
+            return jsonify({
+                'patient_name': patient.patient_name,
+                # You can return other patient fields here
+            })
+    return jsonify({'error': 'Patient not found'}), 404
+
