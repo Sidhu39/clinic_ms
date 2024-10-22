@@ -72,18 +72,20 @@
 
         <div class="box">
             <h2>Doctor Notes:</h2>
-            <form class="pure-form pure-form-stacked" method="POST" action="{{ url_for('routes.appointment_details', patient_id=patient.id) }}">
+            {% for item in waiting_queue %}
+            <form class="pure-form pure-form-stacked" method="POST" action="{{ url_for('routes.appointment_details', appointment_id=patient_id) }}">
+                {% endfor %}
                 <div class="pure-form-group">
-                    <label for="doctor_notes">{{ form.doctor_notes.label }}</label>
-                    {{ form.doctor_notes() }}
+                    <label for="doctor_notes">{{ form2.doctor_notes.label }}</label>
+                    {{ form2.doctor_notes() }}
                 </div>
                 <div class="pure-form-group">
-                    <label for="medications">{{ form.medications.label }}</label>
-                    {{ form.medications() }}
+                    <label for="medications">{{ form2.medications.label }}</label>
+                    {{ form2.medications() }}
                 </div>
                 <div class="submit">
-                <button type="submit" class="pure-button pure-button-primary">Submit</button>
-            </div>
+                    <button type="submit" class="pure-button pure-button-primary">Submit</button>
+                </div>
             </form>
         </div>
     </div>

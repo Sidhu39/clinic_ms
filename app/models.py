@@ -64,6 +64,7 @@ def generate_random_id():
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
 
 
+
 class User(UserMixin,db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), index=True, unique=True)
@@ -81,10 +82,10 @@ class User(UserMixin,db.Model):
         return str(self.id)
 class Queue(db.Model):
     id = db.Column(db.Integer, primary_key=True, nullable=False)
-    appointment_id = db.Column(db.String(64), db.ForeignKey('patient.patient_id'), nullable=False)
+    appointment_id = db.Column(db.String(64), db.ForeignKey('patientvisit.appointment_id'), nullable=False)
     position = db.Column(db.Integer, nullable=False)
     status = db.Column(db.String(64), nullable=False, default='waiting')
-    appointment = db.relationship('Patient', backref=db.backref('queues', lazy=True))
+    appointment = db.relationship('PatientVisit', backref=db.backref('queues', lazy=True))
 '''class Prescription(db.Model):
     __tablename__ = 'prescription'
     id = db.Column(db.Integer, primary_key=True)
@@ -121,8 +122,8 @@ class PatientVisit(db.Model):
     visit_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     status = db.Column(db.String(50), nullable=False, default="waiting")
     queue_position = db.Column(db.Integer, nullable=True)
-    doctor_notes = db.Column(db.Text, nullable=False)
-    medications = db.Column(db.Text, nullable=False)
+    doctor_notes = db.Column(db.Text, nullable=False, default="test")
+    medications = db.Column(db.Text, nullable=False, default="test")
 
 
     def __repr__(self):
@@ -139,12 +140,11 @@ class Patient(db.Model):
     currentdate = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     contact_number = db.Column(db.String(15), nullable=False)
     email = db.Column(db.String(120), nullable=False)
-
-    def calculate_age(self):
-        birthdate = self.birthdate.data
-        currentdate = self.currentdate.data
-        age = currentdate.year - birthdate.year - (
-                (currentdate.month, currentdate.day) < (birthdate.month, birthdate.day))
-        return age
-
     age = db.Column(db.Integer, nullable=False, default=1)
+
+class DoctorNotes(db.Model):
+    __tablename__ = 'doctordetails'
+    id = db.Column(db.Integer, primary_key=True)
+    appointment_id = db.Column(db.String(64), db.ForeignKey('patientvisit.appointment_id'), nullable=False)
+    doctor_notes = db.Column(db.Text, nullable=False, default="test")
+    medications = db.Column(db.Text, nullable=False, default="test")

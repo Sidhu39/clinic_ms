@@ -7,12 +7,12 @@
     <a href="{{ url_for('routes.index') }}" class="back-btn">&#8592;</a>
     <div class="container">
     <h1>Doctor Home Screen</h1>
-
-    <form method="POST" action="{{ url_for('routes.patient_details', patient_id=1) }}" class="pure-form pure-form-stacked">
+    {% for item in waiting_queue %}
+    <form method="POST" action="{{ url_for('routes.patient_details', appointment_id=item.appointment_id) }}" class="pure-form pure-form-stacked">
 
         <div class="queue-box">
             <h2>Waiting Queue</h2>
-            {% for item in waiting_queue %}
+
             <div class="queue-item" data-queue="{{ item.appointment_id }}">
                 {{ item.appointment_id }}
             </div>

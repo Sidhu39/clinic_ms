@@ -98,7 +98,12 @@ class PatientVisitForm(FlaskForm):
     temperature = FloatField('Temperature (F)', validators=[DataRequired()])
     medical_condition = StringField('Medical Condition', validators=[DataRequired(), Length(min=1, max=255)])
     reason = StringField('Reason for Appointment')
+    #medications = TextAreaField('Medications', validators=[DataRequired()])
+    #doctor_notes = TextAreaField('Doctor\'s Notes', validators=[DataRequired()])
+    submit = SubmitField('Submit')
+
+class DoctorPatientVisitForm(FlaskForm):
+    appointment_id = StringField('Appointment ID', validators=[DataRequired(), Length(min=1, max=20)])
     medications = TextAreaField('Medications', validators=[DataRequired()])
     doctor_notes = TextAreaField('Doctor\'s Notes', validators=[DataRequired()])
     submit = SubmitField('Submit')
-
