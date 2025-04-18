@@ -1,11 +1,11 @@
 <!-- view_queue.html -->
 {% extends "layout.html" %}
 {% block content %}
-<h1>Patient Waiting View</h1>
+<h1>Queue Number Display</h1>
 <table class="pure-g">
     <tr>
     <th class="pure-u-1-3">
-        <h2 style="font-size: 40px">Waiting Queue</h2>
+        <h2 style="font-size: 40px">Consultation Queue</h2>
         <table>
             {% for item in waiting_queue %}
             <tr {% if loop.first %}style="font-weight: bold; font-size: larger;"{% endif %}>
@@ -14,8 +14,8 @@
             {% endfor %}
         </table>
     </th>
-
-    <th class="pure-u-1-3">
+    <th></th>
+    <th class="pure-u-1-3" align="right">
         <h2 style="font-size: 40px">Billing Queue</h2>
         <table>
             {% for item in billing_queue %}

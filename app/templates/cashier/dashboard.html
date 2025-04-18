@@ -1,16 +1,34 @@
 {% extends "layout.html" %}
 {% block content %}
-  <h1>Cashier Dashboard</h1>
-    <form method="POST" action="{{ url_for('routes.billing', patient_id=1) }}">
-        {{ form.hidden_tag() }}
-        <div class="billing-queue-container">
-            <label for="billing_queue"><strong>Billing Queue</strong></label><br>
-            {{ form.billing_queue(class="billing-queue-select") }}
+<a href="{{ url_for('routes.index') }}" class="back-btn">&#8592;</a>
+    <div class="header">
+        <h1>Cashier Home Screen</h1>
+        <p>Welcome, {{ cashier_name }}!</p>
+    </div>
+        <div class="box">
+            <h2>Blling Queue:</h2>
+            {% for item in billing_queue %}
+            <form method="POST" action="{{ url_for('routes.billing', appointment_id=item.appointment_id) }}" class="pure-form pure-form-stacked">
+
+            <div class="queue-box">
+                <div class="queue-item" data-queue="{{ item.appointment_id }}">
+                    {{ item.appointment_id }}
+                </div>
+                {% endfor %}
+                <input type="hidden" id="item.appointment_id" name="item.appointment_id" required>
+            </div>
         </div>
-
-        <button type="submit" class="submit-button">Submit</button>
-    </form>
-
-<a href="{{ url_for('routes.logout') }}"
-     class="pure-button pure-button-primary" ><img src="{{ url_for('static', filename='images/logout.jpg') }}" alt="Logout" style="width:25pt" align="right"></a>
+        <div class="submit-btn">
+            <button type="submit" class="pure-button pure-button-primary">Submit</button>
+        </div>
+<script>
+    // JavaScript to handle the selection of a queue item
+    document.querySelectorAll('.queue-item').forEach(item => {
+        item.addEventListener('click', function() {
+            document.querySelectorAll('.queue-item').forEach(i => i.classList.remove('selected'));
+            this.classList.add('selected');
+            document.getElementById('selected_queue').value = this.getAttribute('data-queue');
+        });
+    });
+</script>
 {% endblock %}

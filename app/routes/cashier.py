@@ -13,15 +13,5 @@ bp = Blueprint('cashier', __name__)
 def cashier_dashboard():
     if current_user.role != 'cashier':
         return redirect(url_for('routes.index'))
-    billing_queue = db.session.query(Queue).filter(Queue.status == 'billing').order_by(Queue.position).all()
-
-    # Create form instance
-    form = BillingForm()
-    form.billing_queue.choices = [(q.id, str(q.id)) for q in billing_queue]
-
-    if form.validate_on_submit():
-        selected_id = form.billing_queue.data
-        # Add logic here for what happens when a billing queue ID is selected and submitted
-        flash(f"Selected Queue ID: {selected_id}", "success")
-        return redirect(url_for('routes.index'))
-    return render_template('cashier/dashboard.html', title='Cashier Dashboard', form=form)
+    billing_queue = Queue.query.filter(Queue.status=='billing')
+    return render_template('cashier/dashboard.html', title='Cashier Dashboard', billing_queue=billing_queue,cashier_name=current_user.username)

@@ -4,15 +4,37 @@
     <title>{{ title }} - Clinic Management</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDGO2NIIJsBNsOXy3iVT2ryJuHbclqXxlc&libraries=places"></script>
+    <script>
+        function initializeAutocomplete() {
+            var input = document.getElementById('address');
+            var autocomplete = new google.maps.places.Autocomplete(input);
+        }
+        google.maps.event.addDomListener(window, 'load', initializeAutocomplete);
+    </script>
     <title>CMS</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css" integrity="sha384-X38yfunGUhNzHpBaEBsWLO+A0HDYOQi8ufWDkZ0k9e0eXz/tH3II7uKZ9msv++Ls" crossorigin="anonymous">
+    <style>
+      .container { max-width: 960px; margin: 0 auto; padding: 20px; }
+        .header { text-align: left; font-size: 24px; margin-bottom: 20px; }
+        .box { padding: 15px; border: 1px solid #ddd; margin-bottom: 20px; }
+        .submit { text-align: center; }
+      .submit-button {
+            background-color: #2c3e50;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+    </style>
   </head>
   <body>
     <nav>
-      <!-- Navigation code -->
     </nav>
-    <!-- <script src="{{ url_for('static', filename='js/script.js') }}"></script> -->
     <div class="container">
       {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}

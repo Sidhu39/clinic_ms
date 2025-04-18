@@ -1,9 +1,7 @@
-
-
 {% extends "layout.html" %}
 {% block content %}
-  <h2>Register</h2>
-  <form method="post" action="">
+  <h1>Registration Sign-Up</h1>
+  <form method="POST" action="">
     {{ form.hidden_tag() }}
     <p>
       {{ form.username.label }}<br>
@@ -40,7 +38,9 @@
         <span style="color: red;">[{{ error }}]</span><br>
       {% endfor %}
     </p>
-    <p>{{ form.submit() }}</p>
+    <div class="submit">
+      <button type="submit" class="pure-button pure-button-primary pure-controls">Submit</button>
+    </div>
   </form>
 {% endblock %}
 

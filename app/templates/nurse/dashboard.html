@@ -1,7 +1,8 @@
 {% extends "layout.html" %}
 {% block content %}
-  <h1 align="center">Nurse Dashboard</h1>
 <a href="{{ url_for('routes.index') }}" class="back-btn">&#8592;</a>
+  <h1 align="center">Nurse Home Screen</h1>
+    <p>Welcome, {{ nurse_name }}!</p>
  <form class="pure-form" align="center">
    <p>
        <button type="submit" formaction="{{ url_for('routes.register_patient') }}" class="pure-button pure-button-primary pure-controls"> Patient Registration </button>

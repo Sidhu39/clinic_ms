@@ -1,21 +1,25 @@
 <!-- billing.html -->
 {% extends "layout.html" %}
 {% block content %}
-<h1>Billing</h1>
+<a href="{{ url_for('routes.index') }}" class="back-btn">&#8592;</a>
+<h1>Billing Details:</h1>
 <p>Patient Name: {{ appointment.patient_name }}</p>
 <p>Patient ID: {{ appointment.patient_id }}</p>
-<p>Weight: {{ appointment.weight }}</p>
-<p>Blood Group: {{ appointment1.patient_blood_group }}</p>
-<p>Height: {{ appointment.height }}</p>
-<p>Blood Pressure Systolic: {{ appointment.blood_pressure_high }}</p>
-<p>Blood Pressure Diastolic: {{ appointment.blood_pressure_low }}</p>
+<p>Gender: {{ appointment1.gender }}</p>
+<p>Date of Birth: {{ appointment1.birthdate }}</p>
+<p>Age: {{ appointment1.age }}</p>
+<p>Contact Number: {{ appointment1.contact_number }}</p>
 <p>Email: {{ appointment1.email }}</p>
-<p>Temp (*F): {{ appointment.temperature }}</p>
-<p>Conditions: {{ appointment.medical_condition }}</p>
+<p>Address: {{ appointment1.address }}</p>
+<p>Blood Group: {{ appointment1.patient_blood_group }}</p>
+<p>Medications: {{ doctordetails.medications }}</p><br>
 
 <form method="POST">
-    <label for="amount">Amount:</label>
-    <input type="number" name="amount" required>
-    <button type="submit">Submit Bill</button>
+    {{ form.hidden_tag() }}
+    {{ form.amount.label }}
+    {{ form.amount() }}<br>
+    <div class="submit">
+            <button type="submit" class="pure-button pure-button-primary">Submit</button>
+    </div>
 </form>
 {% endblock %}

@@ -51,7 +51,7 @@ import random
 import string
 # app/models.py
 
-from datetime import datetime
+import datetime
 
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -119,13 +119,7 @@ class PatientVisit(db.Model):
     blood_pressure_low = db.Column(db.Integer, nullable=False)
     temperature = db.Column(db.Integer, nullable=False)
     medical_condition = db.Column(db.String(255), nullable=False)
-    visit_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    status = db.Column(db.String(50), nullable=False, default="waiting")
-    queue_position = db.Column(db.Integer, nullable=True)
-    doctor_notes = db.Column(db.Text, nullable=False, default="test")
-    medications = db.Column(db.Text, nullable=False, default="test")
-
-
+    visit_date = db.Column(db.DateTime, nullable=False, default=datetime.datetime.now())
     def __repr__(self):
         return f"<PatientVisit {self.patient_name}>"
 
@@ -137,14 +131,15 @@ class Patient(db.Model):
     patient_blood_group = db.Column(db.String(3), nullable=False)
     gender = db.Column(db.String(10), nullable=False)
     birthdate = db.Column(db.Date, nullable=False)
-    currentdate = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    currentdate = db.Column(db.DateTime, nullable=False, default=datetime.datetime.now())
     contact_number = db.Column(db.String(15), nullable=False)
     email = db.Column(db.String(120), nullable=False)
-    age = db.Column(db.Integer, nullable=False, default=1)
+    address = db.Column(db.String(255), nullable=False)
+    age = db.Column(db.Integer, nullable=False)
 
 class DoctorNotes(db.Model):
     __tablename__ = 'doctordetails'
     id = db.Column(db.Integer, primary_key=True)
     appointment_id = db.Column(db.String(64), db.ForeignKey('patientvisit.appointment_id'), nullable=False)
-    doctor_notes = db.Column(db.Text, nullable=False, default="test")
-    medications = db.Column(db.Text, nullable=False, default="test")
+    doctor_notes = db.Column(db.Text, nullable=False)
+    medications = db.Column(db.Text, nullable=False)

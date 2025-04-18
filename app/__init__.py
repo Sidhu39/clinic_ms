@@ -5,6 +5,8 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_migrate import Migrate
 from config import Config
+from flask import Flask, render_template, redirect, url_for, request
+from flask_googlemaps import GoogleMaps, Map
 
 db = SQLAlchemy()
 migrate = Migrate()
@@ -14,10 +16,11 @@ login = LoginManager()
 def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
-    app.config['SECRET_KEY'] = 'hehe'
+    app.config['SECRET_KEY'] = 'oc95fb3cd412eeM88a3ofBaCd1eJbd7'
+    app.config['GOOGLEMAPS_KEY'] = 'AIzaSyDGO2NIIJsBNsOXy3iVT2ryJuHbclqXxlc'
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
+    GoogleMaps(app)
     db.init_app(app)
     migrate.init_app(app, db)
     login.init_app(app)

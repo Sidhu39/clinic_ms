@@ -1,19 +1,26 @@
 {% extends "layout.html" %}
 {% block content %}
-  <h1>Sign In</h1>
-  <form method="post" action="">
+  <h1>Sign-In</h1>
+  <form method="POST" action="">
     {{ form.hidden_tag() }}
-    <p>
+    <p class="pure-controls">
+      {{ form.hidden_tag() }}
       {{ form.username.label }}<br>
       {{ form.username(size=32) }}<br>
     </p>
-    <p>
+    <p class="pure-controls">
+      {{ form.hidden_tag() }}
       {{ form.password.label }}<br>
       {{ form.password(size=32) }}<br>
     </p>
-    <p>
+    <p class="pure-controls">
       {{ form.remember_me() }} {{ form.remember_me.label }}<br>
     </p>
-    <p>{{ form.submit() }}</p>
+    <div class="submit">
+      <button type="submit" class="pure-button pure-button-primary pure-controls">Submit</button>
+    </div><br>
+  <div align="center">
+    <a href="{{ url_for('routes.register') }}" class="back-btn">Register Here!</a>
+  </div>
   </form>
 {% endblock %}

@@ -1,41 +1,55 @@
 {% extends "layout.html" %}
 {% block content %}
     <a href="{{ url_for('nurse.nurse_dashboard') }}" class="back-btn">&#8592;</a>
-    <h1 align="center" >Register Patient</h1>
-    <form method="POST" action="" class="pure-form pure-form-aligned">
-        {{ form.hidden_tag() }}
-        <p class="pure-controls">
-            {{ form.patient_name.label }}<br>
+    <h1 align="center" >Patient Registration</h1>
+    <form class="pure-form pure-form-stacked" method="post" action="">
+        <div class="form-group">
+            {{ form.hidden_tag() }}
+            {{ form.patient_name.label }}
             {{ form.patient_name(size=32) }}
-        </p>
-        <p class="pure-controls">
-            {{ form.patient_id.label }}<br>
+        </div><br>
+        <div class="form-group">
+            {{ form.hidden_tag() }}
+            {{ form.patient_id.label }}
             {{ form.patient_id(size=10) }}
-        </p>
-        <p class="pure-controls">
-            {{ form.patient_blood_group.label }}<br>
+        </div><br>
+        <div class="form-group">
+            {{ form.hidden_tag() }}
+            {{ form.patient_blood_group.label }}
             {{ form.patient_blood_group() }}
-        </p>
-        <p class="pure-controls">
-            {{ form.gender.label }}<br>
+        </div><br>
+        <div class="form-group">
+            {{ form.hidden_tag() }}
+            {{ form.gender.label }}
             {{ form.gender() }}
-        </p>
-        <p class="pure-controls">
-            {{ form.birthdate.label }}<br>
+        </div><br>
+        <div class="form-group">
+            {{ form.hidden_tag() }}
+            {{ form.birthdate.label }}
             {{ form.birthdate() }}
-        </p>
-        <p class="pure-controls">
-            {{ form.currentdate.label }}<br>
+        </div><br>
+        <div class="form-group">
+            {{ form.hidden_tag() }}
+            {{ form.currentdate.label }}
             {{ form.currentdate() }}
-        </p>
-        <p class="pure-controls">
-            {{ form.contact_number.label }}<br>
+        </div><br>
+        <div class="form-group">
+            {{ form.hidden_tag() }}
+            {{ form.contact_number.label }}
             {{ form.contact_number(size=15) }}
-        </p>
-        <p class="pure-controls">
-            {{ form.email.label }}<br>
+        </div><br>
+        <div class="form-group">
+            {{ form.hidden_tag() }}
+            {{ form.email.label }}
             {{ form.email(size=64) }}
-        </p>
-        <p class="pure-button pure-button-primary pure-controls">{{ form.submit() }}</p>
+        </div><br>
+        <div class="form-group">
+            {{ form.hidden_tag() }}
+            {{ form.address.label }}
+            {{ form.address(size=64, id="address") }}
+        </div><br>
+        <div class="submit">
+            <button type="submit" class="pure-button pure-button-primary pure-controls">Register Patient</button>
+        </div>
     </form>
 {% endblock %}

@@ -9,4 +9,4 @@ def make_shell_context():
     return {'db': db, 'User': User, 'Appointment': PatientVisit}
 
 if __name__ == '__main__':
-    app.run(debug=True,port=5001)
+    app.run(debug=True,port=5000)

@@ -14,7 +14,6 @@ from wtforms.validators import ValidationError, DataRequired, Email, EqualTo, Le
 from app.models import User
 
 
-
 class LoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired()])
@@ -33,9 +32,10 @@ class PatientRegistrationForm(FlaskForm):
     gender = SelectField('Gender', choices=[('Male', 'Male'), ('Female', 'Female'), ('Other', 'Other')],
                          validators=[DataRequired()])
     birthdate = DateField('Birthdate', format='%Y-%m-%d', validators=[DataRequired()])
-    currentdate = DateField('Current Date', format='%Y-%m-%d', default=datetime.today, validators=[DataRequired()])
-    contact_number = StringField('Contact Number', validators=[DataRequired(), Length(min=10, max=15)])
+    currentdate = DateField('Registration Date', format='%Y-%m-%d', default=datetime.today, validators=[DataRequired()])
+    contact_number = StringField('Contact Number', validators=[DataRequired(), Length(min=8, max=8)])
     email = StringField('Email', validators=[DataRequired(), Email()])
+    address = StringField('Address', validators=[DataRequired(), Length(min=1, max=255)])
     def calculate_age(self):
         birthdate = self.birthdate.data
         currentdate = self.currentdate.data
@@ -45,12 +45,6 @@ class PatientRegistrationForm(FlaskForm):
 
     age = IntegerField('Age', render_kw={'readonly': True})
     submit = SubmitField('Register')
-    '''default = currentdate.default.year - birthdate.default.year - (
-            (currentdate.default.month, currentdate.default.day) < (birthdate.default.month, birthdate.default.day))'''
-
-    '''def validate_age_field(self):
-        self.age.data = self.calculate_age()
-        return True'''
 
 class RegistrationForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
@@ -73,17 +67,9 @@ class QueueForm(FlaskForm):
     queue_position = IntegerField('Queue Position', validators=[DataRequired()])
     submit = SubmitField('Update Queue Position')
 
-'''class PrescriptionForm(FlaskForm):
-    doctor_notes = TextAreaField('Doctor\'s Notes', validators=[DataRequired()])
-    appointment_id = SelectField('Appointment', coerce=int)
-    medications = TextAreaField('Medications', validators=[DataRequired()])
-    follow_up = BooleanField('Follow-up Required')
-    submit = SubmitField('Submit Prescription')'''
-
 class BillingForm(FlaskForm):
     amount = FloatField('Amount', validators=[DataRequired()])
     submit = SubmitField('Generate Bill')
-    billing_queue = SelectField('Billing Queue', choices=[], coerce=int)
 
 
 class PatientVisitForm(FlaskForm):
@@ -98,12 +84,9 @@ class PatientVisitForm(FlaskForm):
     temperature = FloatField('Temperature (F)', validators=[DataRequired()])
     medical_condition = StringField('Medical Condition', validators=[DataRequired(), Length(min=1, max=255)])
     reason = StringField('Reason for Appointment')
-    #medications = TextAreaField('Medications', validators=[DataRequired()])
-    #doctor_notes = TextAreaField('Doctor\'s Notes', validators=[DataRequired()])
     submit = SubmitField('Submit')
 
 class DoctorPatientVisitForm(FlaskForm):
-    appointment_id = StringField('Appointment ID', validators=[DataRequired(), Length(min=1, max=20)])
     medications = TextAreaField('Medications', validators=[DataRequired()])
     doctor_notes = TextAreaField('Doctor\'s Notes', validators=[DataRequired()])
     submit = SubmitField('Submit')

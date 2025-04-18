@@ -38,8 +38,12 @@
                     <label for="contact_number">Contact number:</label>
                     <input id="contact_number" name="contact_number" type="text" value="{{ patient.contact_number }}" readonly>
 
-                    <label for="email">e-mail address:</label>
+                    <label for="email">Email address:</label>
                     <input id="email" name="email" type="text" value="{{ patient.email }}" readonly>
+
+                    <label for="address">Postal Address:</label>
+                    <input id="address" name="address" type="text" value="{{ patient.address }}" readonly>
+
                 </fieldset>
             </form>
         </div>
@@ -72,15 +76,13 @@
 
         <div class="box">
             <h2>Doctor Notes:</h2>
-            {% for item in waiting_queue %}
-            <form class="pure-form pure-form-stacked" method="POST" action="{{ url_for('routes.appointment_details', appointment_id=patient_id) }}">
-                {% endfor %}
+            <form class="pure-form pure-form-stacked" method="POST" action="{{ url_for('routes.view_queue') }}">
                 <div class="pure-form-group">
-                    <label for="doctor_notes">{{ form2.doctor_notes.label }}</label>
+                    {{ form2.doctor_notes.label }}
                     {{ form2.doctor_notes() }}
                 </div>
                 <div class="pure-form-group">
-                    <label for="medications">{{ form2.medications.label }}</label>
+                    {{ form2.medications.label }}
                     {{ form2.medications() }}
                 </div>
                 <div class="submit">

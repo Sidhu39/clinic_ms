@@ -74,9 +74,9 @@
         <h1>Welcome to ABC Clinic</h1>
     </header>
     <nav>
-        <a href="{{ url_for('routes.login') }}">Login</a>
-        <a href="{{ url_for('routes.logout') }}">Logout</a>
-        <a href="{{ url_for('routes.register') }}">Register</a>
+        <a href="{{ url_for('routes.login') }}">Sign-in</a>
+        <a href="{{ url_for('routes.logout') }}">Sign-out</a>
+        <a href="{{ url_for('routes.register') }}">Sign-up</a>
     </nav>
     <div class="container">
         <h2>Select Your Role</h2>
@@ -84,19 +84,19 @@
             <img src="{{ url_for('static', filename='images/doctor.jpg') }}" alt="Doctor">
             <h3>Doctor</h3>
             <p>Manage appointments, patient records, and more.</p>
-            <a href="{{ url_for('doctor.doctor_dashboard') }}">Go to Dashboard</a>
+            <a href="{{ url_for('doctor.doctor_dashboard') }}">Go to Interface</a>
         </div>
         <div class="card">
             <img src="{{ url_for('static', filename='images/nurse.jpg') }}" alt="Nurse">
             <h3>Nurse</h3>
             <p>Assist doctors and manage patient care.</p>
-            <a href="{{ url_for('nurse.nurse_dashboard') }}">Go to Dashboard</a>
+            <a href="{{ url_for('nurse.nurse_dashboard') }}">Go to Interface</a>
         </div>
 
         <div class="card">
             <img src="{{ url_for('static', filename='images/cashier.jpg') }}" alt="Cashier">
             <h3>Cashier</h3>
             <p>Manage finances and billing.</p>
-            <a href="{{ url_for('cashier.cashier_dashboard') }}">Go to Dashboard</a>
+            <a href="{{ url_for('cashier.cashier_dashboard') }}">Go to Interface</a>
 </body>
 </html>
