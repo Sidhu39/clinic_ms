@@ -1,12 +1,13 @@
 from flask import Blueprint, render_template, redirect, url_for
-from flask_login import login_required, current_user
+from flask_login import login_required
+
+from app.models import PatientPass, DoctorNotes
 
 bp = Blueprint('patient', __name__)
 
-@bp.route('/')
-@bp.route('/patient')
+@bp.route('/<patient_id>')
 @login_required
-def patient_dashboard():
-    if current_user.role != 'patient':
-        return redirect(url_for('routes.index'))
-    return render_template('patient/dashboard.html', title='Patient Dashboard')
+def patient_dashboard(patient_id):
+    patient = PatientPass.query.filter_by(patient_id=patient_id).all()
+    doctor_notes = DoctorNotes.query.filter_by(patient_id=patient_id).all()
+    return render_template('patient/dashboard.html', title='Patient Dashboard', doctor_notes=doctor_notes, patient=patient)

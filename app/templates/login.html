@@ -1,26 +1,90 @@
 {% extends "layout.html" %}
 {% block content %}
-  <h1>Sign-In</h1>
-  <form method="POST" action="">
-    {{ form.hidden_tag() }}
-    <p class="pure-controls">
-      {{ form.hidden_tag() }}
-      {{ form.username.label }}<br>
-      {{ form.username(size=32) }}<br>
-    </p>
-    <p class="pure-controls">
-      {{ form.hidden_tag() }}
-      {{ form.password.label }}<br>
-      {{ form.password(size=32) }}<br>
-    </p>
-    <p class="pure-controls">
-      {{ form.remember_me() }} {{ form.remember_me.label }}<br>
-    </p>
-    <div class="submit">
-      <button type="submit" class="pure-button pure-button-primary pure-controls">Submit</button>
-    </div><br>
-  <div align="center">
-    <a href="{{ url_for('routes.register') }}" class="back-btn">Register Here!</a>
+
+<style>
+  .login-container {
+    display: flex;
+    height: 100vh;
+    width: 100%;
+  }
+
+  .clinic-image {
+    position: relative;
+    width: 75%;
+    background-image: url('{{ url_for('static', filename='images/clinic.jpg') }}');
+    background-size: cover;
+    background-position: center;
+  }
+
+  .overlay-text {
+    position: absolute;
+    top: 40%;
+    left: 10%;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7);
+  }
+
+  .overlay-text h1 {
+    font-size: 3em;
+    margin: 0;
+  }
+
+  .overlay-text p {
+    font-size: 1.5em;
+    margin-top: 10px;
+  }
+
+  .login-form-section {
+    width: 25%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    background: #f7f7f7;
+  }
+
+  .login-form {
+    width: 100%;
+  }
+</style>
+
+<div class="login-container">
+
+  <!-- Left: Clinic Image with Overlay -->
+  <div class="clinic-image">
+    <div class="overlay-text">
+      <h1>Welcome to ABC Clinic</h1>
+      <p>Staff Login</p>
+    </div>
   </div>
-  </form>
+
+  <!-- Right: Login Form -->
+  <div class="login-form-section">
+    <form method="POST" action="" class="pure-form pure-form-stacked login-form">
+      {{ form.hidden_tag() }}
+
+      <fieldset>
+        <legend>Sign-In</legend>
+
+        <label for="username">{{ form.username.label }}</label>
+        {{ form.username(size=32) }}
+
+        <label for="password">{{ form.password.label }}</label>
+        {{ form.password(size=32) }}
+
+        <label for="remember_me">{{ form.remember_me() }} {{ form.remember_me.label }}</label>
+
+        <button type="submit" class="pure-button pure-button-primary">Submit</button>
+      </fieldset>
+
+      <p style="margin-top: 10px;">
+        <a href="{{ url_for('routes.register') }}">Register Here!</a>
+      </p>
+      <p>
+        <a href="{{ url_for('routes.index') }}">Back to Home</a>
+      </p>
+    </form>
+  </div>
+
+</div>
+
 {% endblock %}

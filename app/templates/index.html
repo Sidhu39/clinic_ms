@@ -74,28 +74,23 @@
         <h1>Welcome to ABC Clinic</h1>
     </header>
     <nav>
-        <a href="{{ url_for('routes.login') }}">Sign-in</a>
-        <a href="{{ url_for('routes.logout') }}">Sign-out</a>
+        <a href="{{ url_for('routes.register') }}">Register as Staff</a>
+        <a href="{{ url_for('routes.patient_register') }}">Register as Patient</a>
     </nav>
     <div class="container">
         <h2>Select Your Role</h2>
         <div class="card">
-            <img src="{{ url_for('static', filename='images/doctor.jpg') }}" alt="Doctor">
-            <h3>Doctor</h3>
+            <img src="{{ url_for('static', filename='images/pharmacist.jpg') }}" alt="Doctor">
+            <h3>Staff</h3>
             <p>Manage appointments, patient records, and more.</p>
-            <a href="{{ url_for('doctor.doctor_dashboard') }}">Go to Interface</a>
+            <a href="{{ url_for('routes.login') }}">Go to Interface</a>
         </div>
         <div class="card">
-            <img src="{{ url_for('static', filename='images/nurse.jpg') }}" alt="Nurse">
-            <h3>Nurse</h3>
-            <p>Assist doctors and manage patient care.</p>
-            <a href="{{ url_for('nurse.nurse_dashboard') }}">Go to Interface</a>
+            <img src="{{ url_for('static', filename='images/patient.jpg') }}" alt="Nurse">
+            <h3>Patient</h3>
+            <p>View past appointments, check medications</p>
+            <a href="{{ url_for('routes.patient_login') }}">Go to Interface</a>
         </div>
 
-        <div class="card">
-            <img src="{{ url_for('static', filename='images/cashier.jpg') }}" alt="Cashier">
-            <h3>Cashier</h3>
-            <p>Manage finances and billing.</p>
-            <a href="{{ url_for('cashier.cashier_dashboard') }}">Go to Interface</a>
 </body>
 </html>

@@ -1,8 +1,8 @@
-"""Initial migration.
+"""empty message
 
-Revision ID: 69783513df80
+Revision ID: 8676462f2d0d
 Revises: 
-Create Date: 2024-12-20 21:58:23.274188
+Create Date: 2025-04-19 17:21:50.225011
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '69783513df80'
+revision = '8676462f2d0d'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -30,7 +30,10 @@ def upgrade():
     sa.Column('email', sa.String(length=120), nullable=False),
     sa.Column('address', sa.String(length=255), nullable=False),
     sa.Column('age', sa.Integer(), nullable=False),
-    sa.PrimaryKeyConstraint('id')
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('contact_number'),
+    sa.UniqueConstraint('email'),
+    sa.UniqueConstraint('patient_id')
     )
     op.create_table('user',
     sa.Column('id', sa.Integer(), nullable=False),
@@ -48,7 +51,21 @@ def upgrade():
     sa.Column('amount', sa.Float(), nullable=False),
     sa.Column('status', sa.String(length=50), nullable=False),
     sa.ForeignKeyConstraint(['appointment_id'], ['patient.patient_id'], ),
-    sa.PrimaryKeyConstraint('id')
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('appointment_id')
+    )
+    op.create_table('patientpass',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('patient_id', sa.String(length=64), nullable=False),
+    sa.Column('patient_name', sa.String(length=50), nullable=False),
+    sa.Column('email', sa.String(length=120), nullable=False),
+    sa.Column('password_hash', sa.String(length=128), nullable=False),
+    sa.Column('role', sa.String(length=64), nullable=False),
+    sa.ForeignKeyConstraint(['email'], ['patient.email'], ),
+    sa.ForeignKeyConstraint(['patient_id'], ['patient.patient_id'], ),
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('email'),
+    sa.UniqueConstraint('patient_id')
     )
     op.create_table('patientvisit',
     sa.Column('id', sa.Integer(), nullable=False),
@@ -69,9 +86,14 @@ def upgrade():
     op.create_table('doctordetails',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('appointment_id', sa.String(length=64), nullable=False),
+    sa.Column('patient_id', sa.String(length=64), nullable=False),
     sa.Column('doctor_notes', sa.Text(), nullable=False),
+    sa.Column('doctor_name', sa.String(length=50), nullable=False),
     sa.Column('medications', sa.Text(), nullable=False),
+    sa.Column('visit_date', sa.DateTime(), nullable=False),
     sa.ForeignKeyConstraint(['appointment_id'], ['patientvisit.appointment_id'], ),
+    sa.ForeignKeyConstraint(['patient_id'], ['patient.patient_id'], ),
+    sa.ForeignKeyConstraint(['visit_date'], ['patientvisit.visit_date'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('queue',
@@ -90,6 +112,7 @@ def downgrade():
     op.drop_table('queue')
     op.drop_table('doctordetails')
     op.drop_table('patientvisit')
+    op.drop_table('patientpass')
     op.drop_table('billing')
     op.drop_index(op.f('ix_user_username'), table_name='user')
     op.drop_index(op.f('ix_user_email'), table_name='user')

@@ -1,0 +1,88 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<style>
+  .register-wrapper {
+    max-width: 450px;
+    margin: 60px auto;
+    padding: 30px;
+    background: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  }
+  h2 {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+</style>
+
+<div class="register-wrapper">
+  <h2>Patient Registration</h2>
+
+  <form method="POST" class="pure-form pure-form-stacked">
+    {{ form.hidden_tag() }}
+
+    <label for="patient_id">{{ form.patient_id.label }}</label>
+    {{ form.patient_id(class="form-control") }}
+
+    <label for="patient_name"> {{ form.patient_name.label }}</label>
+    {{ form.patient_name(class="form-control", id="patient_name", readonly=True) }}
+
+    <label for="email">{{ form.email.label }}</label>
+    {{ form.email(class="form-control", id='email', readonly=True) }}
+
+    <label for="password">{{ form.password.label }}</label>
+    {{ form.password(class="form-control") }}
+
+    <br>
+    <button type="submit" class="pure-button pure-button-primary">Register</button>
+  </form>
+
+  <p style="text-align:center; margin-top: 15px;">
+    Already have an account?
+    <a href="{{ url_for('routes.patient_login') }}">Login Here</a>
+  </p>
+</div>
+<script>
+        document.getElementById('patient_id').addEventListener('change', function() {
+            var patientID = document.getElementById("patient_id").value;
+            fetch(`/search_patient?patient_id=${patientID}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.patient_name) {
+                        document.getElementById("patient_name").value = data.patient_name;
+                        // Auto-fill other fields here if needed
+                    } else {
+                        alert('Patient not found');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching patient data:', error);
+                });
+        });
+</script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const pidInput = document.getElementById("patient_id");
+    const emailInput = document.getElementById("email");
+
+    if (pidInput) {
+      pidInput.addEventListener('change', function () {
+        const patientID = pidInput.value;
+
+        fetch(`/get_patient_email?patient_id=${patientID}`)
+          .then(response => response.json())
+          .then(data => {
+            if (data.email) {
+              emailInput.value = data.email;
+            } else {
+              emailInput.value = '';
+              alert("Patient ID not found.");
+            }
+          })
+          .catch(err => console.error("Error fetching email:", err));
+      });
+    }
+  });
+</script>
+{% endblock %}

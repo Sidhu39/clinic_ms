@@ -90,3 +90,15 @@ class DoctorPatientVisitForm(FlaskForm):
     medications = TextAreaField('Medications', validators=[DataRequired()])
     doctor_notes = TextAreaField('Doctor\'s Notes', validators=[DataRequired()])
     submit = SubmitField('Submit')
+
+class PatientRegisterForm(FlaskForm):
+    patient_id = StringField('Patient ID', validators=[DataRequired()])
+    patient_name = StringField('Patient Name', validators=[DataRequired(), Length(min=1, max=100)])
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    password = PasswordField('Password', validators=[DataRequired()])
+    submit = SubmitField('Register')
+
+class PatientLoginForm(FlaskForm):
+    patient_id = StringField('Patient ID', validators=[DataRequired()])
+    password = PasswordField('Password', validators=[DataRequired()])
+    submit = SubmitField('Login')

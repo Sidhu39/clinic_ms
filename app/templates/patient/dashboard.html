@@ -1,5 +1,79 @@
 {% extends "layout.html" %}
 {% block content %}
-  <h1>Patient Dashboard</h1>
-  <!-- Patient-specific content -->
+<style>
+  .dashboard {
+    padding: 2rem;
+  }
+  .header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .pure-button {
+    margin-left: 1rem;
+  }
+</style>
+
+<div class="dashboard">
+  <div class="header-row">
+    {% for item in patient %}
+    <h2>Welcome, {{ item.patient_name }}</h2>
+    {% endfor %}
+    <div>
+      <a href="{{ url_for('routes.patient_logout') }}" class="pure-button pure-button-primary">Logout</a>
+      <button class="pure-button pure-button-secondary" onclick="downloadPDF()">Download PDF</button>
+    </div>
+  </div>
+
+  <table id="historyTable" class="pure-table pure-table-bordered" style="margin-top: 1rem;">
+    <thead>
+      <tr>
+        <th>Appointment ID</th>
+        <th>Doctor Notes</th>
+        <th>Medications</th>
+        <th>Doctor Name</th>
+        <th>Visit Date and Time</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for note in doctor_notes %}
+      <tr>
+        <td>{{ note.appointment_id }}</td>
+        <td>{{ note.doctor_notes }}</td>
+        <td>{{ note.medications }}</td>
+        <td>{{ note.doctor_name }}</td>
+        <td>{{ note.visit_date }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- JS for PDF Export -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+<script>
+  function downloadPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    doc.text("Patient Appointment History", 14, 15);
+
+    const rows = [];
+    document.querySelectorAll("#historyTable tbody tr").forEach(tr => {
+      const row = [];
+      tr.querySelectorAll("td").forEach(td => {
+        row.push(td.textContent.trim());
+      });
+      rows.push(row);
+    });
+
+    doc.autoTable({
+      head: [['Appointment ID', 'Doctor Notes', 'Medications']],
+      body: rows,
+      startY: 20
+    });
+
+    doc.save("appointment_history.pdf");
+  }
+</script>
 {% endblock %}

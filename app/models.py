@@ -77,7 +77,6 @@ class User(UserMixin,db.Model):
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
 
-
     def get_id(self):
         return str(self.id)
 class Queue(db.Model):
@@ -100,7 +99,7 @@ class Queue(db.Model):
 
 class Billing(db.Model):
     id = db.Column(db.Integer, primary_key=True, nullable=False)
-    appointment_id = db.Column(db.String(64), db.ForeignKey('patient.patient_id'), nullable=False)
+    appointment_id = db.Column(db.String(64), db.ForeignKey('patient.patient_id'), nullable=False, unique=True)
     amount = db.Column(db.Float, nullable=False)
     status = db.Column(db.String(50), nullable=False, default='Unpaid')
     appointment = db.relationship('Patient', backref=db.backref('billings', lazy=True))
@@ -127,13 +126,13 @@ class Patient(db.Model):
     __tablename__ = 'patient'
     id = db.Column(db.Integer, primary_key=True)
     patient_name = db.Column(db.String(50), nullable=False)
-    patient_id = db.Column(db.String(255), default='test', nullable=False)
+    patient_id = db.Column(db.String(255), default='test', nullable=False, unique=True)
     patient_blood_group = db.Column(db.String(3), nullable=False)
     gender = db.Column(db.String(10), nullable=False)
     birthdate = db.Column(db.Date, nullable=False)
     currentdate = db.Column(db.DateTime, nullable=False, default=datetime.datetime.now())
-    contact_number = db.Column(db.String(15), nullable=False)
-    email = db.Column(db.String(120), nullable=False)
+    contact_number = db.Column(db.String(15), nullable=False, unique=True)
+    email = db.Column(db.String(120), nullable=False, unique=True)
     address = db.Column(db.String(255), nullable=False)
     age = db.Column(db.Integer, nullable=False)
 
@@ -141,5 +140,26 @@ class DoctorNotes(db.Model):
     __tablename__ = 'doctordetails'
     id = db.Column(db.Integer, primary_key=True)
     appointment_id = db.Column(db.String(64), db.ForeignKey('patientvisit.appointment_id'), nullable=False)
+    patient_id = db.Column(db.String(64), db.ForeignKey('patient.patient_id'), nullable=False)
     doctor_notes = db.Column(db.Text, nullable=False)
+    doctor_name = db.Column(db.String(50), nullable=False)
     medications = db.Column(db.Text, nullable=False)
+    visit_date = db.Column(db.DateTime, db.ForeignKey('patientvisit.visit_date'), nullable=False)
+
+class PatientPass(UserMixin, db.Model):
+    __tablename__ = 'patientpass'
+    id = db.Column(db.Integer, primary_key=True)
+    patient_id = db.Column(db.String(64), db.ForeignKey('patient.patient_id'), nullable=False, unique=True)
+    patient_name = db.Column(db.String(50), nullable=False)
+    email = db.Column(db.String(120), db.ForeignKey('patient.email'), nullable=False, unique=True)
+    password_hash = db.Column(db.String(128), nullable=False)
+    role = db.Column(db.String(64), default='patient', nullable=False)
+
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
+
+    def get_id(self):
+        return str(self.id)

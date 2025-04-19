@@ -1,25 +1,22 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request
+from flask import Blueprint, render_template, redirect, url_for, flash, request, session
 from sqlalchemy.exc import SQLAlchemyError
-
-#from app.routes import bp
 from app import db
 
 from app.forms import LoginForm, RegistrationForm, PatientRegistrationForm, \
-    PatientVisitForm, DoctorPatientVisitForm, BillingForm
-from app.models import Queue, User, Billing, Patient, PatientVisit, DoctorNotes
+    PatientVisitForm, DoctorPatientVisitForm, BillingForm, PatientRegisterForm, PatientLoginForm
+from app.models import Queue, User, Billing, Patient, PatientVisit, DoctorNotes, PatientPass
 from flask_login import current_user, login_user, logout_user, login_required
 
 
 bp = Blueprint('routes', __name__)
 
-
+@bp.route('/')
 @bp.route('/index')
-@login_required
 def index():
     return render_template('index.html')
 
 
-@bp.route('/', methods=["GET",'POST'])
+
 @bp.route('/login', methods=["GET",'POST'])
 def login():
     if current_user.is_authenticated:
@@ -48,7 +45,7 @@ def logout():
 @bp.route('/register', methods=['GET','POST'])
 def register():
     if current_user.is_authenticated:
-        return redirect(url_for('routes.index'))
+        return redirect(url_for('routes.login'))
     form = RegistrationForm()
     if form.validate_on_submit():
         user = User(username=form.username.data, email=form.email.data, role=form.role.data)
@@ -118,7 +115,7 @@ def billing(appointment_id):
         db.session.delete(appointment)
         db.session.delete(queue)
         db.session.commit()
-        return redirect(url_for('routes.view_queue'))
+        return redirect(url_for('cashier.cashier_dashboard'))
     return render_template('billing.html', appointment=appointment, appointment1=appointment1, doctordetails=doctordetails, form=form)
 
 @bp.route('/select_queue/<appointment_id>', methods=['GET', 'POST'])
@@ -144,8 +141,11 @@ def appointment_details(appointment_id):
     form2 = DoctorPatientVisitForm()
     if form2.validate_on_submit(): #request.method == "POST"
         doctor = DoctorNotes(
+            doctor_name=current_user.username,
+            patient_id=appointment1.patient_id,
             doctor_notes=form2.doctor_notes.data,
             medications=form2.medications.data,
+            visit_date=appointment1.visit_date,
             appointment_id=appointment1.appointment_id
         )
         db.session.add(doctor)
@@ -167,7 +167,7 @@ def appointment_details(appointment_id):
             db.session.add(new_queue_item)
         db.session.delete(queue)
         db.session.commit()
-        return redirect(url_for('routes.view_queue'))
+        return redirect(url_for('doctor.doctor_dashboard'))
     return render_template('appointment_details.html',doctor_name=current_user.username, appointment=appointment, appointment1=appointment1,form2=form2, appointment2=appointment2)
 
 
@@ -197,31 +197,31 @@ def patient_visit_entry():
         db.session.add(queue)
         db.session.commit()
         #flash('Appointment booked successfully!', 'success')
-        return redirect(url_for('routes.view_queue'))  # Change to your actual redirect route
+        return redirect(url_for('nurse.nurse_dashboard'))  # Change to your actual redirect route
 
     return render_template('patient_visitentry.html', form=form)
 
 
-@bp.route('/patient_details/<appointment_id>', methods=['GET', 'POST'])
+"""@bp.route('/patient_details/<appointment_id>', methods=['GET', 'POST'])
 def patient_details(appointment_id):
     if current_user.role != 'doctor':
         flash('Unauthorized access!', 'danger')
         return redirect(url_for('routes.index'))
-    patient=Patient.query.filter_by(id=Patient.id).first()
     waiting_queue = Queue.query.filter(Queue.status == 'waiting')
     patientvisit = PatientVisit.query.filter_by(appointment_id=appointment_id).first()
+    patient = Patient.query.filter_by(patient_id=patientvisit.patient_id).first()
     if patient is None:
         return "Patient not found", 404
     form2 = DoctorPatientVisitForm()
     if request.method == "POST":
         doctor = DoctorNotes(
-            doctor_notes=form2.doctor_notes.data,
-            medications=form2.medications.data,
-            appointment_id = patientvisit.appointment_id
+            patient_id = patientvisit.patient_id,
+            doctor_notes = form2.doctor_notes.data,
+            medications = form2.medications.data,
+            appointment_id = patientvisit.appointment_id,
         )
         db.session.add(doctor)
         db.session.commit()
-
         queue = Queue.query.filter_by(appointment_id=patientvisit.appointment_id).first()
         queue.status = 'completed'
         existing_billing_item = Queue.query.filter_by(
@@ -242,9 +242,9 @@ def patient_details(appointment_id):
         db.session.delete(patientvisit)
         db.session.commit()
         flash('Patient visit recorded successfully!', 'success')
-        return redirect(url_for('routes.view_queue'))
-    return render_template('patient_details.html', patient=patient, patient_id=patient.id, patientvisit=patientvisit, form2=form2, waiting_queue=waiting_queue)
-
+        return redirect(url_for('doctor.doctor_dashboard'))
+    return render_template('patient_details.html', patient=patient, patient_id=patient.patient_id, patientvisit=patientvisit, form2=form2, waiting_queue=waiting_queue)
+"""
 
 from flask import Flask, jsonify, request
 from app.models import Patient
@@ -261,3 +261,44 @@ def search_patient():
             })
     return jsonify({'error': 'Patient not found'}), 404
 
+@bp.route('/patient_register', methods=['GET', 'POST'])
+def patient_register():
+    form = PatientRegisterForm()
+    if form.validate_on_submit():
+        patient = Patient.query.filter_by(patient_id=form.patient_id.data).first()
+        if patient:
+            new_pass = PatientPass(patient_id=patient.patient_id, email=form.email.data, role='patient', patient_name=form.patient_name.data)
+            new_pass.set_password(form.password.data)
+            db.session.add(new_pass)
+            db.session.commit()
+            flash("Registered successfully!", "success")
+            return redirect(url_for('routes.patient_login'))
+        else:
+            flash("Invalid patient ID", "danger")
+    return render_template('register_patient.html', form=form)
+
+@bp.route('/patient_login', methods=['GET', 'POST'])
+def patient_login():
+    form = PatientLoginForm()
+    if form.validate_on_submit():
+        patient_user = PatientPass.query.filter_by(patient_id=form.patient_id.data).first()
+        if patient_user is None or not patient_user.check_password(form.password.data):
+            flash('Invalid username or password')
+            return redirect(url_for('routes.patient_login'))
+        login_user(patient_user)
+        return redirect(url_for('patient.patient_dashboard', patient_id=patient_user.patient_id))
+    return render_template('patient_login.html', form=form)
+
+@bp.route('/patient_logout')
+def patient_logout():
+    logout_user()
+    return redirect(url_for('routes.patient_login'))
+
+@bp.route('/get_patient_email')
+def get_patient_email():
+    patient_id = request.args.get('patient_id')
+    patient = Patient.query.filter_by(patient_id=patient_id).first()
+    if patient:
+        return jsonify({'email': patient.email})
+    else:
+        return jsonify({'email': ''})
