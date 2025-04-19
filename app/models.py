@@ -58,12 +58,8 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from app import db
 from flask_login import UserMixin
 
-
-
 def generate_random_id():
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
-
-
 
 class User(UserMixin,db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -79,6 +75,7 @@ class User(UserMixin,db.Model):
 
     def get_id(self):
         return str(self.id)
+
 class Queue(db.Model):
     id = db.Column(db.Integer, primary_key=True, nullable=False)
     appointment_id = db.Column(db.String(64), db.ForeignKey('patientvisit.appointment_id'), nullable=False)
@@ -99,7 +96,7 @@ class Queue(db.Model):
 
 class Billing(db.Model):
     id = db.Column(db.Integer, primary_key=True, nullable=False)
-    appointment_id = db.Column(db.String(64), db.ForeignKey('patient.patient_id'), nullable=False, unique=True)
+    appointment_id = db.Column(db.String(64), db.ForeignKey('patient.patient_id'), nullable=False)
     amount = db.Column(db.Float, nullable=False)
     status = db.Column(db.String(50), nullable=False, default='Unpaid')
     appointment = db.relationship('Patient', backref=db.backref('billings', lazy=True))
@@ -139,7 +136,7 @@ class Patient(db.Model):
 class DoctorNotes(db.Model):
     __tablename__ = 'doctordetails'
     id = db.Column(db.Integer, primary_key=True)
-    appointment_id = db.Column(db.String(64), db.ForeignKey('patientvisit.appointment_id'), nullable=False)
+    appointment_id = db.Column(db.String(64), db.ForeignKey('patientvisit.appointment_id'), nullable=False, unique=True)
     patient_id = db.Column(db.String(64), db.ForeignKey('patient.patient_id'), nullable=False)
     doctor_notes = db.Column(db.Text, nullable=False)
     doctor_name = db.Column(db.String(50), nullable=False)
