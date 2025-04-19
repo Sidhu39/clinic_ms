@@ -14,6 +14,7 @@ bp = Blueprint('routes', __name__)
 
 
 @bp.route('/index')
+@login_required
 def index():
     return render_template('index.html')
 
@@ -30,14 +31,19 @@ def login():
             flash('Invalid username or password')
             return redirect(url_for('routes.login'))
         login_user(user, remember=form.remember_me.data)
+        if current_user.role=='nurse':
+            return redirect(url_for('nurse.nurse_dashboard'))
+        if current_user.role=='doctor':
+            return redirect(url_for('doctor.doctor_dashboard'))
+        if current_user.role=='cashier':
+            return redirect(url_for('cashier.cashier_dashboard'))
         return redirect(url_for('routes.index'))
     return render_template('login.html', title='Sign In', form=form)
-    pass
 
 @bp.route('/logout')
 def logout():
     logout_user()
-    return redirect(url_for('routes.index'))
+    return redirect(url_for('routes.login'))
 
 @bp.route('/register', methods=['GET','POST'])
 def register():
@@ -86,7 +92,6 @@ def register_patient():
     return render_template('patient_register.html', title='Patient Registration', form=form)
 
 @bp.route('/queue', methods=['GET', 'POST'])
-@login_required
 def view_queue():
     waiting_queue =  Queue.query.filter(Queue.status=='waiting')
     billing_queue = Queue.query.filter(Queue.status=='billing')
