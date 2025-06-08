@@ -1,5 +1,6 @@
 {% extends "layout.html" %}
 {% block content %}
+<div class="container">
     <a href="{{ url_for('nurse.nurse_dashboard') }}" class="back-btn">&#8592;</a>
     <h1 align="center">Patient Registration</h1>
     <form class="pure-form pure-form-stacked" method="post" action="">
@@ -52,4 +53,5 @@
             <button type="submit" class="pure-button pure-button-primary pure-controls">Register Patient</button>
         </div>
     </form>
+</div>
 {% endblock %}
