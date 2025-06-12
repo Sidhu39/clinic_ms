@@ -1,0 +1,28 @@
+{% extends "layout.html" %}
+{% block content %}
+<a href="{{ url_for('nurse.nurse_dashboard') }}" class="pure-button pure-button-primary">Dashboard</a><br>
+<table class="pure-table">
+  <thead>
+    <tr>
+      <th>Slot ID</th>
+      <th>Patient ID</th>
+      <th>Time Slot</th>
+      <th>Doctor</th>
+      <th>Visit</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for slot in slots %}
+      <tr>
+        <td>{{ slot.id }}</td>
+        <td>{{ slot.patient_id }}</td>
+        <td>{{ slot.time_slot }}</td>
+        <td>{{ slot.doctor_name }}</td>
+        <td>
+          <a href="{{ url_for('nurse.nurse_previsit', slot_id=slot.id) }}" class="pure-button">Visit</a>
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

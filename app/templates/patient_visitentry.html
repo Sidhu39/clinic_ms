@@ -81,14 +81,14 @@
 </head>
 <body>
     <div class="container">
-        <a href="{{ url_for('nurse.nurse_dashboard') }}" class="back-btn">&#8592;</a>
+        <a href="{{ url_for('nurse.nurse_dashboard') }}" class="back-btn">Back to Dashboard</a>
         <form>
             <div>
                 <button type="submit" formaction="{{ url_for('routes.register_patient') }}" class="pure-button pure-button-primary pure-controls register-btn">Register Patient</button>
             </div>
         </form>
-        <h1>Patient Visit Entry</h1>
-        <form class="pure-form pure-form-stacked" method="post" action="{{ url_for('routes.patient_visit_entry') }}">
+        <h1>Patient Visit Entry (Walk-in)</h1>
+        <form class="pure-form pure-form-stacked" method="post" action="{{ url_for('nurse.nurse_walkin') }}">
             {{ form.hidden_tag() }}
                 <div class="form-group">
                     {{ form.patient_id.label }}

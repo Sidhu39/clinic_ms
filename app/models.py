@@ -58,8 +58,19 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from app import db
 from flask_login import UserMixin
 
-def generate_random_id():
-    return ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
+def generate_appointment_id(prebooked=True):
+    # Generate 4 random digits
+    number_part = ''.join(random.choices('0123456789', k=4))
+    # Generate 1 random uppercase alphabet
+    alphabet_part = random.choice(string.ascii_uppercase)
+
+    if prebooked:
+        prefix = 'G'
+    else:
+        prefix = 'H'
+
+    appointment_id = f"{prefix}{number_part}{alphabet_part}"
+    return appointment_id
 
 class User(UserMixin,db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -101,23 +112,38 @@ class Billing(db.Model):
     status = db.Column(db.String(50), nullable=False, default='Unpaid')
     appointment = db.relationship('Patient', backref=db.backref('billings', lazy=True))
 
-
 class PatientVisit(db.Model):
     __tablename__ = 'patientvisit'
+
     id = db.Column(db.Integer, primary_key=True)
-    patient_id = db.Column(db.String, db.ForeignKey('patient.patient_id'), nullable=False)
-    appointment_id = db.Column(db.String(64), unique=True, nullable=False, default=generate_random_id)
+
+    # Unique appointment ID
+    appointment_id = db.Column(db.String(64), unique=True, nullable=False)
     patient = db.relationship('Patient', backref=db.backref('visits', lazy=True))
+
+    # Patient link
+    patient_id = db.Column(db.String, db.ForeignKey('patient.patient_id'), nullable=False)
     patient_name = db.Column(db.String(100), nullable=False)
+
+    # Optional slot reference for pre-booked patients
+    slot_id = db.Column(db.Integer, db.ForeignKey('appointment_slot.id'), nullable=True)
+    time_slot = db.Column(db.String(20), nullable=False)
+    doctor_name = db.Column(db.String(100), nullable=False)
+
+    # Vital signs and condition
     height = db.Column(db.Integer, nullable=False)
     weight = db.Column(db.Integer, nullable=False)
-    blood_pressure_high = db.Column(db.Integer, nullable=False)
-    blood_pressure_low = db.Column(db.Integer, nullable=False)
-    temperature = db.Column(db.Integer, nullable=False)
-    medical_condition = db.Column(db.String(255), nullable=False)
+    blood_pressure_high = db.Column(db.Integer, nullable=True)
+    blood_pressure_low = db.Column(db.Integer, nullable=True)
+    temperature = db.Column(db.Integer, nullable=True)
+    blood_group = db.Column(db.String(5), nullable=False)
+    medical_condition = db.Column(db.String(255), nullable=True)
+
+    # Timestamp
     visit_date = db.Column(db.DateTime, nullable=False, default=datetime.datetime.now())
+
     def __repr__(self):
-        return f"<PatientVisit {self.patient_name}>"
+        return f"<PatientVisit {self.appointment_id} - {self.patient_name}>"
 
 class Patient(db.Model):
     __tablename__ = 'patient'
@@ -160,3 +186,12 @@ class PatientPass(UserMixin, db.Model):
 
     def get_id(self):
         return str(self.id)
+
+class AppointmentSlot(db.Model):
+    __tablename__ = 'appointment_slot'
+    id = db.Column(db.Integer, primary_key=True)
+    doctor_name = db.Column(db.String(100), nullable=False)
+    date = db.Column(db.Date, nullable=False)
+    time_slot = db.Column(db.String(20), nullable=False)
+    patient_id = db.Column(db.String(64), db.ForeignKey('patient.patient_id'), nullable=True)
+    is_booked = db.Column(db.Boolean, default=False)

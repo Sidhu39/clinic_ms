@@ -20,11 +20,18 @@
     <h2>Welcome, {{ item.patient_name }}</h2>
     {% endfor %}
     <div>
+      {% for item in patient %}
+      <a href="{{ url_for('routes.book_appointment', patient_id=item.patient_id) }}" class="pure-button pure-button-secondary">Book an Appointment</a>
       <a href="{{ url_for('routes.patient_logout') }}" class="pure-button pure-button-primary">Logout</a>
       <button class="pure-button pure-button-secondary" onclick="downloadPDF()">Download PDF</button>
+      {% endfor %}
     </div>
   </div>
-
+<div>
+  {% if booked_slot %}
+  <p style="color: green;">You have already booked a slot on {{ booked_slot.date }} at {{ booked_slot.time_slot }} with {{ booked_slot.doctor_name }}</p>
+  {% endif %}
+</div>
   <table id="historyTable" class="pure-table pure-table-bordered" style="margin-top: 1rem;">
     <thead>
       <tr>

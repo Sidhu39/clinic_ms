@@ -4,11 +4,14 @@
   <h1 align="center">Nurse Home Screen</h1>
     <p>Welcome, {{ nurse_name }}!</p>
  <form class="pure-form" align="center">
-   <p>
-       <button type="submit" formaction="{{ url_for('routes.register_patient') }}" class="pure-button pure-button-primary pure-controls"> Patient Registration </button>
-   </p>
-     <p>
-     <button type="submit" formaction="{{ url_for('routes.patient_visit_entry') }}" class="pure-button pure-button-primary pure-controls"> Patient Visit Entry </button>
-    </p>
+   <div>
+       <button type="submit" formaction="{{ url_for('nurse.nurse_prebooked') }}" class="pure-button pure-button-primary pure-controls"> Pre-booked Patients </button>
+   </div><br>
+     <div>
+        <button type="submit" formaction="{{ url_for('nurse.nurse_walkin') }}" class="pure-button pure-button-primary pure-controls"> Patient Walk-in Visit </button>
+    </div><br>
+     <div>
+         <button type="submit" formaction="{{ url_for('routes.register_patient') }}" class="pure-button pure-button-primary pure-controls register-btn">Register Patient</button>
+     </div>
  </form>
 {% endblock %}

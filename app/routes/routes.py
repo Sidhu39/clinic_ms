@@ -1,10 +1,12 @@
+import datetime
+
 from flask import Blueprint, render_template, redirect, url_for, flash, request, session
 from sqlalchemy.exc import SQLAlchemyError
 from app import db
 
 from app.forms import LoginForm, RegistrationForm, PatientRegistrationForm, \
     PatientVisitForm, DoctorPatientVisitForm, BillingForm, PatientRegisterForm, PatientLoginForm
-from app.models import Queue, User, Billing, Patient, PatientVisit, DoctorNotes, PatientPass
+from app.models import Queue, User, Billing, Patient, PatientVisit, DoctorNotes, PatientPass, AppointmentSlot
 from flask_login import current_user, login_user, logout_user, login_required
 
 
@@ -45,7 +47,12 @@ def logout():
 @bp.route('/register', methods=['GET','POST'])
 def register():
     if current_user.is_authenticated:
-        return redirect(url_for('routes.login'))
+        if current_user.role == 'doctor':
+            return redirect(url_for('doctor.doctor_dashboard'))
+        if current_user.role == 'nurse':
+            return redirect(url_for('nurse.nurse_dashboard'))
+        if current_user.role == 'cashier':
+            return redirect(url_for('cashier.cashier_dashboard'))
     form = RegistrationForm()
     if form.validate_on_submit():
         user = User(username=form.username.data, email=form.email.data, role=form.role.data)
@@ -171,7 +178,7 @@ def appointment_details(appointment_id):
     return render_template('appointment_details.html',doctor_name=current_user.username, appointment=appointment, appointment1=appointment1,form2=form2, appointment2=appointment2)
 
 
-@bp.route('/patient_visitentry', methods=['GET', 'POST'])
+"""@bp.route('/patient_visitentry', methods=['GET', 'POST'])
 @login_required
 def patient_visit_entry():
     if current_user.role != 'nurse':
@@ -199,7 +206,7 @@ def patient_visit_entry():
         #flash('Appointment booked successfully!', 'success')
         return redirect(url_for('nurse.nurse_dashboard'))  # Change to your actual redirect route
 
-    return render_template('patient_visitentry.html', form=form)
+    return render_template('patient_visitentry.html', form=form)"""
 
 
 """@bp.route('/patient_details/<appointment_id>', methods=['GET', 'POST'])
@@ -282,6 +289,7 @@ def patient_login():
     form = PatientLoginForm()
     if form.validate_on_submit():
         patient_user = PatientPass.query.filter_by(patient_id=form.patient_id.data).first()
+        session['patient_id'] = patient_user.patient_id
         if patient_user is None or not patient_user.check_password(form.password.data):
             flash('Invalid username or password')
             return redirect(url_for('routes.patient_login'))
@@ -302,3 +310,137 @@ def get_patient_email():
         return jsonify({'email': patient.email})
     else:
         return jsonify({'email': ''})
+
+"""@bp.route('/get_slots')
+def get_slots():
+    doctor = request.args.get('doctor')
+    date_str = request.args.get('date')
+    query = AppointmentSlot.query
+
+    if doctor:
+        query = query.filter_by(doctor_name=doctor)
+    if date_str:
+        query = query.filter_by(date=datetime.strptime(date_str, "%Y-%m-%d").date())
+
+    slots = query.order_by(AppointmentSlot.time_slot).all()
+
+    return jsonify([{
+        'id': slot.id,
+        'doctor_name': slot.doctor_name,
+        'date': slot.date.strftime('%Y-%m-%d'),
+        'time_slot': slot.time_slot,
+        'is_booked': slot.is_booked
+    } for slot in slots])"""
+
+@bp.route('/book_slot', methods=['POST'])
+def book_slot():
+    data = request.get_json()
+    slot_id = data.get('slot_id')
+    patient_id = session.get('patient_id')
+
+    slot = AppointmentSlot.query.get(slot_id)
+    if not slot or slot.is_booked:
+        return jsonify({'message': 'Slot already booked or invalid.'})
+
+    slot.is_booked = True
+    slot.patient_id = patient_id
+    db.session.commit()
+    print("SESSION =", session)
+    return jsonify({'message': 'Slot booked successfully!'})
+
+@bp.route('/book_appointment/<patient_id>')
+@login_required
+def book_appointment(patient_id):
+    doctor_names = User.query.filter_by(role='doctor').with_entities(User.username).distinct().all()
+    doctor_names = [d[0] for d in doctor_names]
+    return render_template('book_appointment.html', doctor_names=doctor_names, patient_id=patient_id)
+
+from datetime import datetime, timedelta, time
+from app.models import AppointmentSlot, db
+
+@bp.route('/get_slots', methods=['GET'])
+def get_slots(start_hour=9, end_hour=17, days_ahead=7):
+    today = datetime.today().date()
+
+    # Get all users with role 'doctor'
+    doctors = User.query.filter_by(role='doctor').with_entities(User.username).distinct().all()
+    doctor_names = [doc.username for doc in doctors]
+
+    for day_offset in range(days_ahead):
+        current_date = today + timedelta(days=day_offset)
+
+        for doctor in doctor_names:
+            current_time = time(hour=start_hour)
+            while current_time < time(hour=end_hour):
+                # Skip lunch hour (1 PM to 2 PM)
+                if time(13, 0) <= current_time < time(14, 0):
+                    current_time = (datetime.combine(datetime.today(), current_time) + timedelta(minutes=15)).time()
+                    continue
+
+                time_str = datetime.combine(datetime.today(), current_time).strftime('%I:%M %p')
+
+                # Avoid duplicating existing slots
+                existing = AppointmentSlot.query.filter_by(
+                    doctor_name=doctor,
+                    date=current_date,
+                    time_slot=time_str
+                ).first()
+
+                if not existing:
+                    slot = AppointmentSlot(
+                        doctor_name=doctor,
+                        date=current_date,
+                        time_slot=time_str,
+                        is_booked=False
+                    )
+                    db.session.add(slot)
+
+                current_time = (datetime.combine(datetime.today(), current_time) + timedelta(minutes=15)).time()
+
+    db.session.commit()
+    print("Time slots generated successfully.")
+    patient_id = session.get('patient_id')
+    doctor = request.args.get('doctor')
+    date_str = request.args.get('date')
+    date = datetime.strptime(date_str, "%Y-%m-%d").date()
+    slots = AppointmentSlot.query.filter_by(doctor_name=doctor, date=date).order_by(
+        AppointmentSlot.time_slot).all()
+
+    existing_booking = AppointmentSlot.query.filter_by(patient_id=patient_id, is_booked=True).first()
+    if existing_booking:
+        return jsonify({'message': 'You have already booked a slot. Multiple bookings are not allowed.'})
+
+    return jsonify([
+        {
+            'id': s.id,
+            'doctor_name': s.doctor_name,
+            'date': s.date.strftime('%Y-%m-%d'),
+            'time_slot': s.time_slot,
+            'is_booked': s.is_booked
+        } for s in slots
+    ])
+
+@bp.route('/create_slots')
+def create_slots():
+    get_slots()
+    return "Slots created successfully."
+
+
+"""patient_id = session.get('patient_id')
+
+                slots = AppointmentSlot.query.filter_by(doctor_name=doctor, date=date).order_by(
+                    AppointmentSlot.time_slot).all()
+
+                existing_booking = AppointmentSlot.query.filter_by(patient_id=patient_id, is_booked=True).first()
+                if existing_booking:
+                    return jsonify({'message': 'You have already booked a slot. Multiple bookings are not allowed.'})
+
+                return jsonify([
+                    {
+                        'id': s.id,
+                        'doctor_name': s.doctor_name,
+                        'date': s.date.strftime('%Y-%m-%d'),
+                        'time_slot': s.time_slot,
+                        'is_booked': s.is_booked
+                    } for s in slots
+                ])"""

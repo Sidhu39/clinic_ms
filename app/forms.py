@@ -73,7 +73,7 @@ class BillingForm(FlaskForm):
 
 
 class PatientVisitForm(FlaskForm):
-
+    slot_id = IntegerField('Slot ID', validators=[DataRequired()])
     patient_id = StringField('Patient ID', validators=[DataRequired(), Length(min=1, max=20)])
     patient_name = StringField('Patient Name', validators=[DataRequired(), Length(min=1, max=100)])
     height = FloatField('Height (cms)', validators=[DataRequired()])
@@ -102,3 +102,12 @@ class PatientLoginForm(FlaskForm):
     patient_id = StringField('Patient ID', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired()])
     submit = SubmitField('Login')
+
+class PreVisitForm(FlaskForm):
+    height = IntegerField('Height (cm)', validators=[DataRequired()])
+    weight = IntegerField('Weight (kg)', validators=[DataRequired()])
+    blood_pressure_high = IntegerField('Blood Pressure High', validators=[Optional()])
+    blood_pressure_low = IntegerField('Blood Pressure Low', validators=[Optional()])
+    temperature = IntegerField('Temperature (°C)', validators=[Optional()])
+    medical_condition = TextAreaField('Medical Condition', validators=[Optional()])
+    submit = SubmitField('Submit Visit')

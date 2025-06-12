@@ -1,0 +1,77 @@
+{% extends "layout.html" %}
+{% block content %}
+<h2>Pre-Booked Patient Visit Entry</h2>
+
+<form method="POST" class="pure-form pure-form-stacked">
+    {{ form.hidden_tag() }}
+
+    <!-- 🔐 Hidden slot_id input -->
+    <input type="hidden" name="slot_id" value="{{ slot.id }}">
+
+    <fieldset>
+        <!-- Read-only pre-filled patient info -->
+        <label for="patient_id">Patient ID</label>
+        <input id="patient_id" type="text" value="{{ patient.patient_id }}" readonly>
+
+        <label for="patient_name">Patient Name</label>
+        <input id="patient_name" type="text" value="{{ patient.patient_name }}" readonly>
+
+        <label for="doctor_name">Doctor Name</label>
+        <input id="doctor_name" type="text" value="{{ slot.doctor_name }}" readonly>
+
+        <label for="time_slot">Time Slot</label>
+        <input id="time_slot" type="text" value="{{ slot.time_slot }}" readonly>
+
+        <label for="blood_group">Blood Group</label>
+        <input id="blood_group" type="text" value="{{ patient.patient_blood_group }}" readonly>
+
+        <!-- Nurse inputs using WTForms -->
+      <div class="form-group">
+        {{ form.height.label }}
+        {{ form.height(class="pure-input-1") }}
+      </div>
+      <div class="form-group">
+        {{ form.weight.label }}
+        {{ form.weight(class="pure-input-1") }}
+      </div>
+      <div class="form-group">
+        {{ form.blood_pressure_high.label }}
+        {{ form.blood_pressure_high(class="pure-input-1") }}
+      </div>
+      <div class="form-group">
+        {{ form.blood_pressure_low.label }}
+        {{ form.blood_pressure_low(class="pure-input-1") }}
+      </div>
+      <div class="form-group">
+        {{ form.temperature.label }}
+        {{ form.temperature(class="pure-input-1") }}
+      </div>
+      <div class="form-group">
+        {{ form.medical_condition.label }}
+        {{ form.medical_condition(class="pure-input-1-2") }}
+      </div>
+        <br>
+      <div class="form-group">
+        {{ form.submit(class="pure-button pure-button-primary") }}
+      </div>
+    </fieldset>
+</form>
+<script>
+        document.getElementById('patient_id').addEventListener('change', function() {
+            var patientID = document.getElementById("patient_id").value;
+            fetch(`/search_patient?patient_id=${patientID}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.patient_name) {
+                        document.getElementById("patient_name").value = data.patient_name;
+                        // Auto-fill other fields here if needed
+                    } else {
+                        alert('Patient not found');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching patient data:', error);
+                });
+        });
+    </script>
+{% endblock %}
